@@ -49,16 +49,16 @@ function Header({ onMenuClick }) {
 
   return (
     <header
-      className="flex h-20 items-center justify-between border-b border-brand-border/70 bg-white/80 px-6 backdrop-blur-md lg:px-8"
+      className="flex h-16 sm:h-20 items-center justify-between border-b border-brand-border/70 bg-white/90 px-3 sm:px-6 backdrop-blur-md lg:px-8"
       style={{ zIndex: Z_INDEX.HEADER }}
     >
       {/* ── Left: Hamburger (mobile) + Brand ──────────────────────────── */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <button
           onClick={onMenuClick}
           aria-label="Abrir menú"
           className={cn(
-            'flex h-10 w-10 items-center justify-center rounded-xl',
+            'flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl',
             'text-brand-text-muted transition-colors hover:bg-brand-pastel hover:text-brand-primary',
             'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50',
             'lg:hidden'
@@ -67,7 +67,7 @@ function Header({ onMenuClick }) {
           <Menu className="h-5 w-5" aria-hidden="true" />
         </button>
 
-        <span className="text-base font-bold text-brand-text lg:hidden">
+        <span className="text-sm sm:text-base font-bold text-brand-text lg:hidden tracking-tight whitespace-nowrap">
           {APP_NAME}
         </span>
       </div>
@@ -76,7 +76,7 @@ function Header({ onMenuClick }) {
       <div className="flex-1" />
 
       {/* ── Right: Notifications Bell + User Profile ──────────────────── */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         {isAuthenticated ? (
           <>
             {/* Notification Bell */}
@@ -86,14 +86,14 @@ function Header({ onMenuClick }) {
                 onClick={toggleNotifications}
                 aria-label="Notificaciones"
                 className={cn(
-                  'relative flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-white',
+                  'relative flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-brand-border bg-white',
                   'text-brand-text transition-all duration-150 shadow-sm',
                   'hover:bg-brand-pastel/50 hover:text-brand-primary hover:border-brand-primary/30',
                   'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50',
                   isNotificationsOpen && 'bg-brand-pastel text-brand-primary border-brand-primary/40'
                 )}
               >
-                <Bell className="h-5 w-5 stroke-[1.8]" aria-hidden="true" />
+                <Bell className="h-4 w-4 sm:h-5 sm:w-5 stroke-[1.8]" aria-hidden="true" />
                 {unreadCount > 0 && (
                   <span className="absolute 1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-primary px-1 text-[10px] font-bold leading-none text-white animate-badge-pulse">
                     {unreadCount > 9 ? '9+' : unreadCount}
@@ -124,15 +124,15 @@ function Header({ onMenuClick }) {
                 aria-expanded={isUserMenuOpen}
                 aria-controls="user-menu"
                 className={cn(
-                  'flex items-center gap-3 rounded-full py-1.5 pl-1.5 pr-3 transition-all duration-150',
+                  'flex items-center gap-2 sm:gap-3 rounded-full py-1 pl-1 pr-1.5 sm:py-1.5 sm:pl-1.5 sm:pr-3 transition-all duration-150',
                   'hover:bg-brand-pastel/30',
                   'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50',
                   isUserMenuOpen && 'bg-brand-pastel/40'
                 )}
               >
                 {/* Avatar Circle with initials */}
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-primary text-xs font-bold text-white shadow-sm shadow-brand-primary/25">
-                  {initials || <UserIcon className="h-5 w-5" />}
+                <div className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-brand-primary text-[11px] sm:text-xs font-bold text-white shadow-sm shadow-brand-primary/25">
+                  {initials || <UserIcon className="h-4 w-4 sm:h-5 sm:w-5" />}
                 </div>
 
                 {/* Name + Role */}
@@ -144,7 +144,7 @@ function Header({ onMenuClick }) {
                 </div>
 
                 {/* Chevron icon */}
-                <ChevronDown className="h-4 w-4 text-brand-text-muted stroke-[2] ml-0.5" />
+                <ChevronDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-brand-text-muted stroke-[2]" />
               </button>
 
               <DropdownPortal
@@ -166,19 +166,19 @@ function Header({ onMenuClick }) {
             </div>
           </>
         ) : (
-          /* Sesión no iniciada (Invitado / Público) */
-          <div className="flex items-center gap-3">
+          /* Sesión no iniciada (Invitado / Público) — Optimizado para móvil */
+          <div className="flex items-center gap-1.5 sm:gap-2.5">
             <button
               onClick={() => navigate(ROUTES.LOGIN)}
-              className="rounded-xl border border-brand-border bg-white px-4 py-2 text-sm font-semibold text-brand-text hover:bg-brand-pastel/30 transition-colors shadow-sm"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-brand-border bg-white px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-brand-text shadow-sm hover:bg-brand-pastel/30 hover:border-brand-primary/40 active:scale-95 transition-all"
             >
-              Iniciar sesión
+              <span>Iniciar sesión</span>
             </button>
             <button
               onClick={() => navigate(ROUTES.REGISTER)}
-              className="rounded-xl bg-brand-primary px-4 py-2 text-sm font-semibold text-white hover:bg-brand-primary-hover transition-colors shadow-sm shadow-brand-primary/20"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-brand-primary px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-sm shadow-brand-primary/20 hover:bg-brand-primary-hover active:scale-95 transition-all"
             >
-              Registrarse
+              <span>Registrarse</span>
             </button>
           </div>
         )}
