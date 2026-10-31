@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { LogIn, UserRound, ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import Button from '@/components/ui/Button'
@@ -6,7 +6,7 @@ import GuestForm from './GuestForm'
 
 /**
  * BookingAuthSelector — ofrece las dos vías de identificación antes de confirmar:
- *   1) Continuar como invitado (abierto por defecto automáticamente)
+ *   1) Continuar como invitado (abierto por defecto y con auto-scroll suave)
  *   2) Ingresar con mi cuenta
  *
  * @param {Object} props
@@ -17,9 +17,20 @@ import GuestForm from './GuestForm'
 export default function BookingAuthSelector({ onLogin, onGuestSubmit, guestSubmitting = false }) {
   // Abierto automáticamente por defecto para agilizar la confirmación directa del cliente
   const [showGuestForm, setShowGuestForm] = useState(true)
+  const containerRef = useRef(null)
+
+  // Auto-scroll suave hacia el formulario de Nombre completo y Teléfono al montarse
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (containerRef.current) {
+        containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }, 150)
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
-    <div className="space-y-4">
+    <div ref={containerRef} className="space-y-4">
       {/* ── Opción 1: Invitado (Abierto por defecto) ─────────────────────── */}
       <div className="rounded-2xl border border-brand-border bg-white p-5 shadow-sm">
         <button
