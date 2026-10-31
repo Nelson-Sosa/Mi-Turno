@@ -6,11 +6,7 @@ import { getStorage } from 'firebase/storage'
 /**
  * Firebase configuration loaded from Vite environment variables.
  * All variables must be prefixed with VITE_ to be exposed to the client.
- * Set these in your .env.local file (never commit real values to the repo).
- * 
- * IMPORTANTE: Estas credenciales FALLBACK son del proyecto anterior (PatyNails).
- * Debes reemplazarlas con las de tu nuevo proyecto Firebase para Mi Turno.
- * Configura las variables de entorno en .env.local antes de usar en producción.
+ * Project: Mi Turno (mi-turno-1fc86)
  */
 const FALLBACK = {
   apiKey: 'PENDIENTE_CONFIGURAR',
