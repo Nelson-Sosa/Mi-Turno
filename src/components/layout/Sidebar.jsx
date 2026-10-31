@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Crown } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { NAV_ITEMS } from '@/constants/navigation'
 import { APP_NAME } from '@/constants/app'
@@ -168,24 +168,6 @@ function Sidebar({ isCollapsed, onToggleCollapse, isMobileOpen, onMobileClose })
 
         {/* ── Bottom Section: Pro Plan Banner + Instagram + Collapse ──────────── */}
         <div className="flex flex-col gap-3 border-t border-brand-border/60 p-4">
-          {/* Mi Turno Pro Card */}
-          {!isCollapsed && (
-            <div className="rounded-2xl border border-brand-border bg-brand-bg/60 p-3.5 flex flex-col gap-2.5">
-              <div className="flex items-center gap-2">
-                <Crown className="h-4 w-4 text-brand-primary fill-brand-primary/20" />
-                <span className="text-xs font-bold text-brand-text">Mi Turno Pro</span>
-              </div>
-              <p className="text-[11px] text-brand-text-muted leading-tight">
-                Gestiona tu negocio con todas las funciones
-              </p>
-              <button
-                type="button"
-                className="w-full rounded-xl bg-brand-primary py-2 text-xs font-medium text-white transition-opacity hover:opacity-90 shadow-sm shadow-brand-primary/20"
-              >
-                Actualizar Plan
-              </button>
-            </div>
-          )}
 
           {/* Instagram link */}
           <InstagramLink isCollapsed={isCollapsed} onMobileClose={onMobileClose} />
