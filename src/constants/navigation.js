@@ -5,21 +5,19 @@ import {
   Users,
   Settings,
   UserCircle,
-  Image as ImageIcon,
   LayoutGrid,
 } from 'lucide-react'
 import { ROUTES } from '@/routes/routes'
 
 /**
  * Main navigation items for the Sidebar.
- * Guaranteed order matching design:
+ * Clean, focused order:
  * 1. Inicio
  * 2. Turnos
  * 3. Clientes
  * 4. Servicios
- * 5. Trabajos
- * 6. Configuración
- * 7. Mi Perfil
+ * 5. Configuración
+ * 6. Mi Perfil
  */
 export const NAV_ITEMS = [
   {
@@ -69,22 +67,6 @@ export const NAV_ITEMS = [
     icon: CalendarPlus,
     description: 'Reservar un turno',
     roles: ['user'],
-  },
-  {
-    id: 'public-works',
-    label: 'Trabajos',
-    path: ROUTES.WORKS,
-    icon: ImageIcon,
-    description: 'Nuestros diseños',
-    roles: ['user'],
-  },
-  {
-    id: 'admin-works',
-    label: 'Trabajos',
-    path: ROUTES.ADMIN_WORKS,
-    icon: ImageIcon,
-    description: 'Gestión de trabajos',
-    roles: ['admin'],
   },
   {
     id: 'settings',

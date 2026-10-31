@@ -11,8 +11,6 @@ import ClientsPage from '@/pages/Clients/ClientsPage'
 import ServicesPage from '@/pages/Services/ServicesPage'
 import SettingsPage from '@/pages/Settings/SettingsPage'
 import ProfilePage from '@/pages/Profile/ProfilePage'
-import WorksPage from '@/pages/Works/WorksPage'
-import GalleryPage from '@/pages/Gallery/GalleryPage'
 import ProtectedAdminRoute from '@/routes/ProtectedAdminRoute'
 import { ROUTES } from '@/routes/routes'
 
@@ -20,16 +18,17 @@ import { ROUTES } from '@/routes/routes'
  * Application router configuration using React Router v7's createBrowserRouter.
  *
  * Route structure:
- * /                        → Redirects to /dashboard
+ * /                        → Redirects to /services
  * /login                   → Public: LoginPage
  * (ProtectedRoute)
  *   (AppLayout)
- *     /dashboard           → DashboardPage
+ *     /dashboard           → DashboardPage (Inicio)
  *     /appointments        → AppointmentsPage
  *     /clients             → ClientsPage
  *     /services            → ServicesPage
  *     /settings            → SettingsPage
- * *                        → Redirects to /dashboard
+ *     /profile             → ProfilePage
+ * *                        → Redirects to /services
  */
 export const router = createBrowserRouter([
   // ─── Root redirect ──────────────────────────────────────────────────────────
@@ -62,10 +61,6 @@ export const router = createBrowserRouter([
         path: ROUTES.SERVICES,
         element: <ServicesPage />,
       },
-      {
-        path: ROUTES.WORKS,
-        element: <GalleryPage />,
-      },
 
       // Protected routes
       {
@@ -94,10 +89,6 @@ export const router = createBrowserRouter([
               {
                 path: ROUTES.CLIENTS,
                 element: <ClientsPage />,
-              },
-              {
-                path: ROUTES.ADMIN_WORKS,
-                element: <WorksPage />,
               },
               {
                 path: ROUTES.SETTINGS,

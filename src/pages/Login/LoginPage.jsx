@@ -31,7 +31,6 @@ import Input from '@/components/ui/Input'
 const ADMIN_ONLY_ROUTES = new Set([
   ROUTES.DASHBOARD,
   ROUTES.CLIENTS,
-  ROUTES.ADMIN_WORKS,
   ROUTES.SETTINGS,
   ROUTES.REPORTS,
 ])
