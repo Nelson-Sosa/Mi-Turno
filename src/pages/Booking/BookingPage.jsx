@@ -521,8 +521,7 @@ function BookingPage() {
             <div className="mt-6 w-full max-w-sm rounded-xl border border-brand-border bg-brand-card p-4 text-left">
               <p className="text-sm font-semibold text-brand-text">¿Querés llevar tu historial con vos?</p>
               <p className="mt-1 text-xs text-brand-text-muted">
-                Creá una cuenta gratis para guardar tu historial, consultar próximos turnos y
-                acceder a beneficios de fidelidad.
+                Creá una cuenta gratis para guardar tu historial, consultar tus próximos turnos y reagendar tus citas cuando quieras.
               </p>
               <Button
                 className="mt-3 w-full"
