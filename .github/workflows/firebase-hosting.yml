@@ -41,5 +41,5 @@ jobs:
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
-          projectId: PENDIENTE_CONFIGURAR
+          projectId: mi-turno-1fc86
           channelId: live

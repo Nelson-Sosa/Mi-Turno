@@ -14,11 +14,12 @@ dist-ssr
 
 # ── Environment variables — NEVER commit these ────────────────────────────────
 .env
-.env.local
-.env.development
-.env.production
-.env.staging
+.env.*
+..env*
+*.env
+*.env.*
 # ✅ .env.example is intentionally NOT ignored (safe to commit)
+!.env.example
 
 # ── Firebase ──────────────────────────────────────────────────────────────────
 .firebase/

@@ -35,8 +35,8 @@ service cloud.firestore {
 
     // ─── CLIENTES ───
     match /clients/{docId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+      // Restringido exclusivamente al administrador (protección de datos personales)
+      allow read, write: if isAdmin();
     }
 
     // ─── SETTINGS ───

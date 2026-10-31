@@ -31,7 +31,9 @@ function ServicesPage() {
   const [serviceToDelete, setServiceToDelete] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
 
-  const { data: rawServices, isLoading } = isAdmin ? useAllServices() : useServices()
+  const allServicesQuery = useAllServices({ enabled: isAdmin })
+  const activeServicesQuery = useServices({ enabled: !isAdmin })
+  const { data: rawServices, isLoading } = isAdmin ? allServicesQuery : activeServicesQuery
   const { data: categories } = useCategories()
   const { mutateAsync: deleteService, isPending: isDeleting } = useDeleteService()
 

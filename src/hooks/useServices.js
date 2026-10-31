@@ -16,22 +16,24 @@ const QUERY_KEY = 'services'
 /**
  * Fetch all active services (public catalog).
  */
-export function useServices() {
+export function useServices(options = {}) {
   return useQuery({
     queryKey: [QUERY_KEY, 'active'],
     queryFn: createRealtimeQuery(subscribeServices),
     refetchOnMount: 'always',
+    ...options,
   })
 }
 
 /**
  * Fetch all services including inactive ones (admin use).
  */
-export function useAllServices() {
+export function useAllServices(options = {}) {
   return useQuery({
     queryKey: [QUERY_KEY, 'all'],
     queryFn: createRealtimeQuery(subscribeAllServices),
     refetchOnMount: 'always',
+    ...options,
   })
 }
 
