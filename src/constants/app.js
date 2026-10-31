@@ -1,0 +1,156 @@
+/**
+ * Global application constants.
+ * Centralize app-wide configuration values here.
+ */
+
+export const APP_NAME = 'Mi Turno'
+export const APP_TAGLINE = 'Sistema de Gestión de Turnos para Salones de Belleza'
+export const APP_VERSION = '1.0.0'
+export const APP_DEVELOPER = 'CodigoPy'
+
+/** Default pagination page size */
+export const PAGE_SIZE = 10
+
+/** Appointment status values — 'done' is the official final state and income trigger */
+export const APPOINTMENT_STATUS = {
+  PENDING: 'pending',
+  CONFIRMED: 'confirmed',
+  IN_PROGRESS: 'in_progress',
+  DONE: 'done',
+  CANCELLED: 'cancelled',
+  NO_SHOW: 'no_show',
+  /** @deprecated Use DONE instead */
+  COMPLETED: 'done',
+}
+
+/**
+ * Payment status values — independent from appointment status.
+ * Represents the lifecycle of a deposit (seña) payment.
+ */
+export const PAYMENT_STATUS = {
+  PENDING_PROOF: 'pending_proof',     // Waiting for client to upload proof
+  PROOF_SUBMITTED: 'proof_submitted', // Proof uploaded, awaiting admin review
+  APPROVED: 'approved',               // Admin approved → triggers appointment confirmation
+  REJECTED: 'rejected',               // Admin rejected → client can re-upload
+}
+
+/**
+ * Payment provider identifiers.
+ * Prepared for future integrations (Bancard, Ueno Empresas, etc.).
+ */
+export const PAYMENT_PROVIDERS = {
+  MANUAL_TRANSFER: 'manual_transfer', // Current implementation: bank transfer + manual proof
+  BANCARD: 'bancard',                 // Future: Bancard online gateway
+  UENO: 'ueno',                       // Future: Ueno Empresas gateway
+}
+
+/** Status display config (label + Badge variant) — used by StatusMenu, Dashboard, etc. */
+export const STATUS_CONFIG = {
+  [APPOINTMENT_STATUS.PENDING]: { label: 'Pendiente', variant: 'default' },
+  [APPOINTMENT_STATUS.CONFIRMED]: { label: 'Confirmado', variant: 'info' },
+  [APPOINTMENT_STATUS.IN_PROGRESS]: { label: 'En proceso', variant: 'primary' },
+  [APPOINTMENT_STATUS.DONE]: { label: 'Completado', variant: 'success' },
+  [APPOINTMENT_STATUS.CANCELLED]: { label: 'Cancelado', variant: 'danger' },
+  [APPOINTMENT_STATUS.NO_SHOW]: { label: 'No asistió', variant: 'warning' },
+}
+
+/** User roles — ready for multi-tenant / SaaS expansion */
+export const USER_ROLES = {
+  ADMIN: 'admin',
+  STAFF: 'staff',
+  VIEWER: 'viewer',
+}
+
+/** Supported payment methods */
+export const PAYMENT_METHODS = {
+  CASH: 'cash',
+  CARD: 'card',
+  TRANSFER: 'transfer',
+  MP: 'mercado_pago',
+}
+
+/** Date/time formats used across the app */
+export const DATE_FORMAT = {
+  DISPLAY: 'dd/MM/yyyy',
+  DISPLAY_LONG: 'EEEE d \'de\' MMMM',
+  TIME: 'HH:mm',
+  FULL: 'dd/MM/yyyy HH:mm',
+}
+
+/** WhatsApp integration — placeholders for future integration */
+export const WHATSAPP = {
+  ENABLED: false,
+  API_URL: 'https://api.whatsapp.com/send',
+}
+
+/** Firebase collection names — single source of truth */
+export const COLLECTIONS = {
+  USERS: 'users',
+  APPOINTMENTS: 'appointments',
+  CLIENTS: 'clients',
+  SERVICES: 'services',
+  SERVICE_CATEGORIES: 'serviceCategories',
+  SETTINGS: 'settings',
+  NOTIFICATIONS: 'notifications',
+  INCOME: 'income',
+  LOYALTY_HISTORY: 'loyaltyHistory',
+  WORKS: 'works',
+}
+
+/** Default professional ID for MVP mono-professional mode */
+export const DEFAULT_PROFESSIONAL_ID = 'default'
+
+/** Benefits Program — visit-based rewards */
+export const BENEFITS = {
+  DEFAULT_REWARD_EVERY_VISITS: 6,
+  DEFAULT_REWARD_INCREMENT: 6,
+  REWARD_TYPE: 'discount',
+  REWARD_DESCRIPTION: '20% de descuento',
+}
+
+/**
+ * Configurable Loyalty Program — single source of truth for the reward engine
+ * and the admin configuration UI (Configuración → Programa de Fidelización).
+ * Designed to be extended with new reward types without breaking the engine.
+ */
+export const LOYALTY = {
+  /** How rewards are earned */
+  ACCUMULATION: {
+    VISITS: 'visits',     // each completed appointment = 1 visit
+    SERVICES: 'services', // each completed service = 1 service
+  },
+
+  /** Reward types. Add new types here and register their grant logic in the engine. */
+  BENEFIT: {
+    DISCOUNT: 'discount',           // percentage discount off any service
+    FREE_SERVICE: 'free_service',   // free service (any or a specific one)
+  },
+
+  /** Magic value meaning "the client can pick any service" for free-service rewards */
+  FREE_SERVICE_ANY: 'any',
+
+  /** Quick presets used in the config UI */
+  CONDITION_PRESETS: [6, 10, 15],
+  DISCOUNT_PRESETS: [10, 20, 30, 40, 50],
+  VALIDITY_PRESETS: [90, 180, 365],
+
+  /** Defaults for a brand new program */
+  DEFAULT_CONDITION: 6,
+  DEFAULT_DISCOUNT_PERCENT: 20,
+  DEFAULT_VALIDITY_DAYS: 90,
+}
+
+/** Phase 2 — WhatsApp trigger types (not implemented) */
+export const WHATSAPP_TRIGGERS = {
+  REMINDER_24H: 'reminder_24h',
+  CONFIRMATION: 'confirmation',
+  CANCELLATION: 'cancellation',
+  BIRTHDAY: 'birthday',
+}
+
+/** @deprecated Use useBusinessSettings hook instead */
+export const DEPRECATED_BUSINESS_HOURS = {
+  START: '07:00',
+  END: '20:00',
+  DAYS: [0, 1, 2, 3, 4, 5, 6], // 0 = Sunday, 1 = Monday, etc.
+}

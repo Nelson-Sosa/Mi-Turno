@@ -1,0 +1,277 @@
+import { useState, useEffect, useMemo } from 'react'
+import { format } from 'date-fns'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import toast from 'react-hot-toast'
+import { useClients } from '@/hooks/useClients'
+import { useServices } from '@/hooks/useServices'
+import { useActiveCategories } from '@/hooks/useServiceCategories'
+import { useCreateAppointment, useUpdateAppointmentDetails } from '@/hooks/useAppointments'
+import { useAuth } from '@/context/AuthContext'
+import { checkAppointmentConflict } from '@/services/appointments/appointmentsService'
+import { USER_ROLES } from '@/constants/app'
+import { validateAppointmentDateTime } from '@/utils/dateValidation'
+import { useBusinessSettings } from '@/hooks/useBusinessSettings'
+import { canStartServiceAt, getScheduleErrorMessage, getDayWorkingSpan, getWeekWorkingSpan } from '@/services/scheduleService'
+import { formatCurrency } from '@/utils/formatters'
+import Button from '@/components/ui/Button'
+import Input from '@/components/ui/Input'
+import TimeSelect from '@/components/ui/TimeSelect'
+import Modal from '@/components/ui/Modal'
+import { cn } from '@/utils/cn'
+
+const schema = z.object({
+  clientId: z.string().min(1, 'Seleccioná un cliente'),
+  serviceId: z.string().min(1, 'Seleccioná un servicio'),
+  date: z.string().min(1, 'Seleccioná una fecha'),
+  time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Hora inválida (HH:mm)')
+})
+
+function NewAppointmentModal({ isOpen, onClose, initialDate, initialTime, appointmentToEdit = null }) {
+  const { role } = useAuth()
+  const { data: clients, isLoading: loadingClients } = useClients()
+  const { data: services, isLoading: loadingServices } = useServices()
+  const { data: categories } = useActiveCategories()
+  const { mutateAsync: createAppointment, isPending: isCreating } = useCreateAppointment()
+  const { mutateAsync: updateAppointment, isPending: isUpdating } = useUpdateAppointmentDetails()
+  const { settings: businessSettings } = useBusinessSettings()
+  
+  const isEditing = !!appointmentToEdit
+  const isPending = isCreating || isUpdating
+
+  // Agrupar servicios por categoría para mejorar la visualización en select nativo
+  const groupedServices = useMemo(() => {
+    if (!services || !categories) return []
+    return categories.map(cat => ({
+      ...cat,
+      services: services.filter(s => s.categoryId === cat.id)
+    })).filter(cat => cat.services.length > 0)
+  }, [services, categories])
+
+  const getEditDateStr = () => {
+    if (!appointmentToEdit || !appointmentToEdit.date) return format(initialDate, 'yyyy-MM-dd')
+    const d = appointmentToEdit.date.toDate ? appointmentToEdit.date.toDate() : new Date(appointmentToEdit.date)
+    return format(d, 'yyyy-MM-dd')
+  }
+
+  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting }, watch } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      clientId: appointmentToEdit?.clientId || '',
+      serviceId: appointmentToEdit?.serviceId || '',
+      date: getEditDateStr(),
+      time: appointmentToEdit?.time || initialTime || '10:00',
+    }
+  })
+
+  useEffect(() => {
+    if (appointmentToEdit) {
+      reset({
+        clientId: appointmentToEdit.clientId,
+        serviceId: appointmentToEdit.serviceId,
+        date: getEditDateStr(),
+        time: appointmentToEdit.time,
+      })
+    } else {
+      reset({
+        clientId: '',
+        serviceId: '',
+        date: format(initialDate, 'yyyy-MM-dd'),
+        time: initialTime || '10:00',
+      })
+    }
+  }, [appointmentToEdit, initialDate, reset])
+
+  // We are in mono-professional mode, so no professional selection.
+  const onSubmit = async (data) => {
+    try {
+      const client = clients?.find((c) => c.id === data.clientId)
+      const service = services?.find((s) => s.id === data.serviceId)
+
+      if (!client || !service) {
+        toast.error('Error al obtener datos')
+        return
+      }
+
+      // Validar que el usuario pueda agendar en esta fecha/hora
+      // Los administradores pueden agendar en cualquier momento (pasado incluido)
+      const dateValidation = validateAppointmentDateTime(data.date, data.time, role)
+      if (!dateValidation.valid) {
+        toast.error(dateValidation.message)
+        return
+      }
+
+      if (businessSettings) {
+        const [year, month, day] = data.date.split('-').map(Number)
+        const slotDay = new Date(year, month - 1, day, 12, 0, 0)
+        const scheduleCheck = canStartServiceAt(businessSettings, slotDay, data.time, service.duration)
+        if (!scheduleCheck.valid) {
+          toast.error(getScheduleErrorMessage(scheduleCheck.reason))
+          return
+        }
+      }
+
+      // Convert date string to a Date object at noon to avoid timezone shift
+      const [year, month, day] = data.date.split('-').map(Number)
+      const appointmentDate = new Date(year, month - 1, day, 12, 0, 0)
+
+      // Verify the slot is available before persisting
+      const hasConflict = await checkAppointmentConflict(
+        appointmentDate,
+        data.time,
+        service.duration,
+        isEditing ? appointmentToEdit.id : null
+      )
+      if (hasConflict) {
+        toast.error('Ya existe un turno en ese horario. Elegí otro horario.')
+        return
+      }
+
+      if (isEditing) {
+        await updateAppointment({
+          id: appointmentToEdit.id,
+          data: {
+            serviceId: service.id,
+            serviceName: service.name,
+            price: service.price,
+            duration: service.duration,
+            date: appointmentDate,
+            time: data.time,
+          }
+        })
+        toast.success('Turno actualizado')
+      } else {
+        await createAppointment({
+          clientId: client.id,
+          clientName: client.name,
+          clientPhone: client.phone || null,
+          serviceId: service.id,
+          serviceName: service.name,
+          price: service.price,
+          duration: service.duration,
+          date: appointmentDate,
+          time: data.time,
+        })
+        toast.success('Turno agendado')
+      }
+      onClose()
+    } catch (error) {
+      toast.error(isEditing ? 'No se pudo actualizar el turno' : 'No se pudo crear el turno')
+    }
+  }
+
+  if (!isOpen) return null
+
+  // Hour range for the time selector, derived from the selected day's blocks
+  const formDate = watch('date')
+  const dateForRange = formDate || format(initialDate, 'yyyy-MM-dd')
+  let timeStartHour = 7
+  let timeEndHour = 20
+  if (businessSettings && dateForRange) {
+    const [yr, mo, dy] = dateForRange.split('-').map(Number)
+    const rangeDay = new Date(yr, mo - 1, dy, 12, 0, 0)
+    const daySpan = getDayWorkingSpan(businessSettings, rangeDay) || getWeekWorkingSpan(businessSettings)
+    if (daySpan) {
+      timeStartHour = Math.floor(daySpan.startMin / 60)
+      timeEndHour = Math.floor((daySpan.endMin - 1) / 60)
+    }
+  }
+
+  const today = new Date()
+  const minDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEditing ? 'Editar Turno' : 'Agendar Turno'}
+      maxWidthClass="max-w-lg"
+    >
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+          {/* Client Select */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-brand-text">Cliente</label>
+            <select
+              className={cn(
+                'h-10 w-full rounded-lg border bg-brand-bg px-3 text-sm text-brand-text',
+                errors.clientId ? 'border-red-500/50 focus:border-red-500' : 'border-brand-border focus:border-brand-primary focus:ring-1 focus:ring-brand-primary',
+                isEditing && 'opacity-70 cursor-not-allowed'
+              )}
+              disabled={loadingClients || isEditing}
+              {...register('clientId')}
+            >
+              <option value="">Seleccionar cliente...</option>
+              {clients?.map((c) => (
+                <option key={c.id} value={c.id}>{c.name} {c.phone ? `(${c.phone})` : ''}</option>
+              ))}
+            </select>
+            {errors.clientId && <p className="text-xs text-red-400">{errors.clientId.message}</p>}
+            {isEditing && <p className="text-xs text-brand-text-muted">El cliente no se puede modificar.</p>}
+          </div>
+
+          {/* Service Select */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-brand-text">Servicio</label>
+            <select
+              className={cn(
+                'h-10 w-full rounded-lg border bg-brand-bg px-3 text-sm text-brand-text',
+                errors.serviceId ? 'border-red-500/50 focus:border-red-500' : 'border-brand-border focus:border-brand-primary focus:ring-1 focus:ring-brand-primary'
+              )}
+              disabled={loadingServices}
+              {...register('serviceId')}
+            >
+              <option value="">Seleccionar servicio...</option>
+              {groupedServices?.length > 0 ? (
+                groupedServices.map((cat) => (
+                  <optgroup key={cat.id} label={cat.name}>
+                    {cat.services.map((s) => (
+                      <option key={s.id} value={s.id}>{s.name} - {formatCurrency(s.price)}</option>
+                    ))}
+                  </optgroup>
+                ))
+              ) : (
+                services?.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name} - {formatCurrency(s.price)}</option>
+                ))
+              )}
+            </select>
+            {errors.serviceId && <p className="text-xs text-red-400">{errors.serviceId.message}</p>}
+          </div>
+
+
+          {/* Date Input */}
+          <Input 
+            label="Fecha del turno" 
+            type="date" 
+            min={role === USER_ROLES.ADMIN ? undefined : minDate}
+            error={errors.date?.message}
+            {...register('date')}
+          />
+
+          {/* Time Input */}
+          <Controller
+            name="time"
+            control={control}
+            render={({ field }) => (
+              <TimeSelect
+                label="Hora del turno"
+                startHour={timeStartHour}
+                endHour={timeEndHour}
+                stepMinutes={businessSettings?.slotInterval || 30}
+                error={errors.time?.message}
+                {...field}
+              />
+            )}
+          />
+
+          <div className="mt-4 flex justify-end gap-3">
+            <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>Cancelar</Button>
+            <Button type="submit" loading={isSubmitting || isPending}>Guardar</Button>
+          </div>
+        </form>
+    </Modal>
+  )
+}
+
+export default NewAppointmentModal

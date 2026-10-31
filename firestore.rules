@@ -1,0 +1,184 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    // ─── USUARIOS ───
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      
+      allow create: if isOwner(userId) && request.resource.data.role == "user";
+      
+      // El usuario puede actualizar su perfil, pero NO puede cambiarse el rol ni el estado de verificación
+      allow update: if isOwner(userId) &&
+        request.resource.data.get('role', 'user') == resource.data.get('role', 'user') &&
+        request.resource.data.get('phoneVerified', false) == resource.data.get('phoneVerified', false) &&
+        request.resource.data.get('uid', '') == resource.data.get('uid', '') &&
+        request.resource.data.get('email', '') == resource.data.get('email', '');
+
+      // El admin tiene control total
+      allow write: if isAdmin();
+    }
+
+    // ─── CLIENTES ───
+    match /clients/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // ─── SETTINGS ───
+    // settings/salon, settings/payments and settings/business live under /settings/{docId}
+    match /settings/{docId} {
+      // Public read: needed for the guest booking flow (business hours, payment
+      // instructions, loyalty program config) and for public info on the site.
+      // Contains only salon-level config — no client PII.
+      allow read: if true;
+      // Only admins can write (bank data, payment config, etc.)
+      allow write: if isAdmin();
+    }
+
+    // ─── SERVICIOS (Catálogo) ───
+    match /services/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ─── CATEGORÍAS DE SERVICIOS ───
+    match /serviceCategories/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ─── TURNOS ───
+    match /appointments/{docId} {
+      // Admin tiene control total sobre todos los turnos
+      allow read, write: if isAdmin();
+
+      // Lectura pública (guest booking): necesaria para calcular la disponibilidad
+      // y verificar conflictos de horario sin iniciar sesión.
+      // NOTA: expone el contenido de los turnos (igual que el comportamiento actual
+      // para cualquier usuario autenticado). Es el mecanismo existente de disponibilidad.
+      allow read: if true;
+
+      // Usuario registrado: solo puede crear turnos a futuro y a su propio nombre
+      allow create: if isAuthenticated()
+        && request.resource.data.clientId == request.auth.uid
+        && request.resource.data.date >= request.time;
+
+      // Invitado (sin cuenta): puede crear su propio turno
+      // - Debe marcarse como invitado (isGuest == true)
+      // - No debe tener userId ni clientId
+      // - Debe incluir un guestToken generado al azar (>= 24 chars) que lo identifica
+      // - La fecha debe ser futura
+      allow create: if !isAuthenticated()
+        && request.resource.data.isGuest == true
+        && request.resource.data.userId == null
+        && request.resource.data.clientId == null
+        && request.resource.data.date >= request.time
+        && request.resource.data.guestToken is string
+        && request.resource.data.guestToken.size() >= 24;
+
+      // Usuario: puede actualizar sus propios turnos en tres casos:
+      //   1) Cancelar (status = 'cancelled') — regla original
+      //   2) Subir/reemplazar comprobante de seña:
+      //        - Solo modifica el campo 'payment' y 'updatedAt'
+      //        - El nuevo payment.status debe ser 'proof_submitted'
+      //        - El clientId del turno debe coincidir con el usuario autenticado
+      //        - No puede cambiar otros campos del turno (status, date, price, etc.)
+      //   3) Vincular historial de invitado al crear cuenta:
+      //        - El turno debe ser de un invitado (isGuest == true)
+      //        - El teléfono del turno debe coincidir con el teléfono registrado del usuario
+      //        - Solo puede cambiar userId, isGuest, clientId y updatedAt
+      allow update: if isAuthenticated()
+        && resource.data.clientId == request.auth.uid
+        && (
+          // Case 1: Cancel
+          (
+            request.resource.data.status == 'cancelled' &&
+            request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['status', 'updatedAt'])
+          )
+          ||
+          // Case 2: Submit / replace proof (payment.status → proof_submitted)
+          (
+            request.resource.data.get('payment.status', '') == 'proof_submitted' &&
+            request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['payment', 'updatedAt'])
+          )
+        )
+      || (
+        // Case 3: Guest history linking (solo si el teléfono coincide con el del usuario)
+        isAuthenticated()
+        && resource.data.isGuest == true
+        && request.resource.data.isGuest == false
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.get('clientPhone', '')
+            == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.phone
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['userId', 'isGuest', 'clientId', 'updatedAt'])
+      );
+
+      // Invitado: solo puede reenviar el comprobante de seña de SU turno,
+      // presentando el guestToken generado al momento de la reserva.
+      allow update: if !isAuthenticated()
+        && resource.data.isGuest == true
+        && request.resource.data.get('guestToken', '') == resource.data.guestToken
+        && request.resource.data.get('payment.status', '') == 'proof_submitted'
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['payment', 'updatedAt']);
+    }
+
+    // ─── INGRESOS ───
+    match /income/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ─── NOTIFICACIONES ───
+    match /notifications/{docId} {
+      // El admin puede ver, marcar como leídas, etc.
+      allow read, write: if isAdmin();
+      // Los usuarios autenticados pueden generar notificaciones (ej. al reservar un turno)
+      allow create: if isAuthenticated();
+    }
+
+    // ─── HISTORIAL DE FIDELIDAD ───
+    match /loyaltyHistory/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+
+      // Al vincular el historial de un invitado por teléfono, el usuario puede
+      // mover sus propios registros (clientId == teléfono) hacia su UID.
+      allow update: if isAuthenticated()
+        && request.resource.data.clientId == request.auth.uid
+        && resource.data.clientId
+            == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.phone
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['clientId']);
+    }
+
+    // ─── TRABAJOS (PORTFOLIO) ───
+    match /works/{workId} {
+      // Admin: CRUD total
+      allow read, write: if isAdmin();
+      
+      // Público no autenticado y clientes autenticados: pueden leer cualquier trabajo.
+      allow read: if true;
+      
+      // Solo el admin puede crear, editar y eliminar trabajos.
+      allow write: if isAdmin();
+    }
+  }
+}

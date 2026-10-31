@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "PENDIENTE_CONFIGURAR"
+  },
+  "targets": {},
+  "etags": {},
+  "_comment": "IMPORTANTE: Reemplazar 'PENDIENTE_CONFIGURAR' con el ID de tu nuevo proyecto Firebase para Mi Turno"
+}
