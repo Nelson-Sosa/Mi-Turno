@@ -10,8 +10,8 @@ import {
   Heart,
   Star,
   Smile,
-  Zap,
   Wind,
+  CalendarPlus,
 } from 'lucide-react'
 import { formatCurrency } from '@/utils/formatters'
 
@@ -163,10 +163,7 @@ function CategoryCard({
                 {services.map((svc) => (
                   <div
                     key={svc.id}
-                    onClick={() => !isAdmin && onBook?.(svc.id)}
-                    className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-4 transition-colors ${
-                      isAdmin ? '' : 'cursor-pointer hover:bg-brand-bg/40 rounded-xl px-2'
-                    }`}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-4 transition-colors"
                   >
                     {/* Left: Pink bullet dot + Name & Description */}
                     <div className="flex items-center gap-3.5 flex-1 min-w-0">
@@ -183,8 +180,8 @@ function CategoryCard({
                       </div>
                     </div>
 
-                    {/* Right: Duration | Price (Green) | Status Badge | Admin Actions */}
-                    <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-8 shrink-0 pl-5 sm:pl-0">
+                    {/* Right: Duration | Price (Green) | Status Badge | Admin Actions OR Client Reservar Button */}
+                    <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-6 shrink-0 pl-5 sm:pl-0">
                       {/* Duration with clock */}
                       <div className="flex items-center gap-1.5 text-xs sm:text-sm text-brand-text-muted">
                         <Clock className="h-4 w-4 stroke-[1.8]" />
@@ -202,8 +199,8 @@ function CategoryCard({
                         {svc.active !== false ? 'Activo' : 'Inactivo'}
                       </div>
 
-                      {/* Admin Actions: Edit & Delete */}
-                      {isAdmin && (
+                      {/* Actions: Admin (Edit/Delete) vs Client (Reservar Button) */}
+                      {isAdmin ? (
                         <div className="flex items-center gap-1">
                           <button
                             type="button"
@@ -228,6 +225,15 @@ function CategoryCard({
                             <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => onBook?.(svc.id)}
+                          className="flex items-center gap-1.5 rounded-xl bg-brand-primary px-3.5 py-1.5 text-xs font-bold text-white shadow-sm shadow-brand-primary/20 hover:bg-brand-primary-hover active:scale-95 transition-all"
+                        >
+                          <CalendarPlus className="h-3.5 w-3.5" />
+                          <span>Reservar</span>
+                        </button>
                       )}
                     </div>
                   </div>
