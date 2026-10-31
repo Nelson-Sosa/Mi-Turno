@@ -193,11 +193,13 @@ function CategoryCard({
                         {formatCurrency(svc.price)}
                       </p>
 
-                      {/* Active Status Badge */}
-                      <div className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 border border-emerald-100">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                        {svc.active !== false ? 'Activo' : 'Inactivo'}
-                      </div>
+                      {/* Active Status Badge (Admin only) */}
+                      {isAdmin && (
+                        <div className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 border border-emerald-100">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                          {svc.active !== false ? 'Activo' : 'Inactivo'}
+                        </div>
+                      )}
 
                       {/* Actions: Admin (Edit/Delete) vs Client (Reservar Button) */}
                       {isAdmin ? (
