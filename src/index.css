@@ -119,20 +119,20 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: var(--color-slate-950);
+    background: var(--color-brand-bg);
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--color-slate-700);
+    background: var(--color-brand-border);
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-slate-600);
+    background: var(--color-brand-pastel);
   }
 
   /* Selection */
   ::selection {
     background-color: color-mix(in srgb, var(--color-rose-500) 25%, transparent);
-    color: var(--color-rose-200);
+    color: var(--color-brand-primary);
   }
 
   input[type="time"],
@@ -147,9 +147,9 @@
 @layer utilities {
   /* Glass morphism */
   .glass {
-    background: color-mix(in srgb, var(--color-slate-900) 80%, transparent);
+    background: color-mix(in srgb, var(--color-brand-card) 90%, transparent);
     backdrop-filter: blur(12px);
-    border: 1px solid color-mix(in srgb, white 8%, transparent);
+    border: 1px solid var(--color-brand-border);
   }
 
   /* Brand gradient — sophisticated dusty rose → soft violet */

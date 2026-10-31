@@ -16,7 +16,7 @@ const DAYS = ['Domingo', 'Lunes', 'Martes', 'Mi\u00e9rcoles', 'Jueves', 'Viernes
 const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
 
 function DashboardPage() {
-  usePageTitle('Dashboard')
+  usePageTitle('Inicio')
 
   const { user, userProfile } = useAuth()
   const { data: stats, isLoading } = useDashboardStats()

@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Scissors, Plus, FolderKanban, Search, X } from 'lucide-react'
-import { NailPolishIcon } from '@/components/icons/NailPolishIcon'
+import { Scissors, Plus, FolderKanban, Search, X, Sparkles } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { useAuth } from '@/hooks/useAuth'
@@ -141,8 +140,8 @@ function ServicesPage() {
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-500/20 text-rose-500">
-            <NailPolishIcon className="h-6 w-6" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-pastel text-brand-primary">
+            <Sparkles className="h-6 w-6" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-brand-text">Catálogo de Servicios</h1>

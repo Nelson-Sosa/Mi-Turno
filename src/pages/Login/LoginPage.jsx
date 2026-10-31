@@ -106,24 +106,16 @@ function LoginPage() {
 
   // ─── Google login ─────────────────────────────────────────────────────────
   const handleGoogleLogin = async () => {
-    console.log('[AUDIT TEMP LoginPage] handleGoogleLogin — Inicio login Google (click)')
     setIsGoogleLoading(true)
     try {
       await loginWithGoogle()
-      console.log('[AUDIT TEMP LoginPage] handleGoogleLogin — loginWithGoogle completado sin excepciones')
       toast.success('¡Bienvenida!')
       handlePostLogin()
     } catch (error) {
-      console.error('[AUDIT TEMP LoginPage] handleGoogleLogin — catch disparado. Detalle del ERROR:', {
-        error: error,
-        code: error.code,
-        message: error.message,
-        stack: error.stack
-      })
+      console.error('[LoginPage] Google sign-in error:', error.code)
       toast.error('No se pudo iniciar sesión con Google')
     } finally {
       setIsGoogleLoading(false)
-      console.log('[AUDIT TEMP LoginPage] handleGoogleLogin — FINALIZADO (finally)')
     }
   }
 

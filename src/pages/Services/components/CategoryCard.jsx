@@ -86,15 +86,15 @@ function CategoryCard({ category, services, isAdmin, onEditCategory, onAddServic
           <span
             role="img"
             aria-label={`Categoría: ${category.name}`}
-            className="relative flex h-12 w-12 sm:h-14 sm:w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500/20 to-violet-500/10 ring-1 ring-brand-pastel shadow-md shadow-rose-500/10 transition-all duration-200 ease-out group-hover/header:-translate-y-0.5 group-hover/header:scale-[1.08] group-hover/header:from-rose-500/30 group-hover/header:to-violet-500/15 group-hover/header:ring-brand-primary/50 group-hover/header:shadow-lg group-hover/header:shadow-rose-500/20"
+            className="relative flex h-12 w-12 sm:h-14 sm:w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-brand-pastel ring-1 ring-brand-border shadow-md shadow-brand-primary/10 transition-all duration-200 ease-out group-hover/header:-translate-y-0.5 group-hover/header:scale-[1.08] group-hover/header:bg-brand-primary/15 group-hover/header:ring-brand-primary/40 group-hover/header:shadow-lg group-hover/header:shadow-brand-primary/15"
           >
-            <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-rose-400 transition-colors duration-200 group-hover/header:text-brand-primary" />
+            <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-brand-primary transition-colors duration-200 group-hover/header:text-brand-primary" />
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-brand-text truncate">{category.name}</h3>
               {/* Mobile badge indicator */}
-              <span className="inline-flex sm:hidden items-center justify-center rounded-full bg-rose-500/10 px-2 py-0.5 text-[10px] font-bold text-rose-400 shrink-0">
+              <span className="inline-flex sm:hidden items-center justify-center rounded-full bg-brand-pastel px-2 py-0.5 text-[10px] font-bold text-brand-primary shrink-0">
                 {activeServices.length}
               </span>
             </div>
@@ -120,7 +120,7 @@ function CategoryCard({ category, services, isAdmin, onEditCategory, onAddServic
         {/* RIGHT: Badge + Actions + Chevron */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {/* Desktop badge */}
-          <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-rose-500/20 bg-rose-500/8 px-3 py-1 text-xs font-medium text-rose-300">
+          <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-brand-primary/20 bg-brand-pastel px-3 py-1 text-xs font-medium text-brand-primary">
             {activeServices.length} servicio{activeServices.length !== 1 ? 's' : ''}
           </span>
 
@@ -135,7 +135,7 @@ function CategoryCard({ category, services, isAdmin, onEditCategory, onAddServic
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); onAddService(category) }}
-                className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl text-rose-400 transition-all duration-200 hover:bg-rose-500/15 shrink-0"
+                className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl text-brand-primary transition-all duration-200 hover:bg-brand-pastel shrink-0"
                 title="Agregar servicio"
               >
                 <Plus className="h-4 w-4" />
@@ -185,8 +185,8 @@ function CategoryCard({ category, services, isAdmin, onEditCategory, onAddServic
                           isAdmin ? '' : 'cursor-pointer'
                         } ${
                           hoveredService === svc.id
-                            ? 'border-rose-500/25 bg-white/[0.04] shadow-md shadow-rose-500/5 -translate-y-0.5'
-                            : 'border-white/[0.04] bg-white/[0.015]'
+                            ? 'border-brand-primary/30 bg-brand-pastel/20 shadow-md shadow-brand-primary/10 -translate-y-0.5'
+                            : 'border-brand-pastel bg-transparent'
                         }`}
                       >
                         {/* Name + badges */}

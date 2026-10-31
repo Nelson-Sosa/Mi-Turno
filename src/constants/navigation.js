@@ -29,7 +29,7 @@ import { ROUTES } from '@/routes/routes'
 export const NAV_ITEMS = [
   {
     id: 'dashboard',
-    label: 'Dashboard',
+    label: 'Inicio',
     path: ROUTES.DASHBOARD,
     icon: LayoutDashboard,
     description: 'Resumen general',
