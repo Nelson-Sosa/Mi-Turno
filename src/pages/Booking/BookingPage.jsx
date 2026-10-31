@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { X, Check, Banknote, Info, PartyPopper, Sparkles, UserRoundCheck } from 'lucide-react'
+import { X, Check, Banknote, Info, PartyPopper, Sparkles, UserRoundCheck, MessageCircle } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/context/AuthContext'
@@ -536,6 +536,25 @@ function BookingPage() {
               </p>
             </div>
           )}
+
+          {/* Botón opcional de confirmación por WhatsApp */}
+          <div className="mt-6 w-full max-w-sm rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-left">
+            <p className="text-sm font-bold text-brand-text">¿Querés avisarnos por WhatsApp?</p>
+            <p className="mt-1 text-xs text-brand-text-muted">
+              (Opcional) Podés enviarnos un mensaje directo para confirmar tu solicitud al instante.
+            </p>
+            <a
+              href={`https://wa.me/595983986775?text=${encodeURIComponent(
+                `¡Hola! Acabo de solicitar un turno en Mi Turno:\n\n• Servicio: ${selectedService?.name || ''}\n• Fecha: ${dateLabel || ''}\n• Hora: ${slotTime || ''} hs\n• Cliente: ${userProfile?.displayName || user?.displayName || guestData?.name || 'Cliente'}\n\n¿Me confirman la recepción? ¡Muchas gracias!`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95"
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span>Confirmar por WhatsApp</span>
+            </a>
+          </div>
 
           <div className="mt-6 flex flex-col gap-2 sm:flex-row">
             <Button
