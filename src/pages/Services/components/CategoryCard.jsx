@@ -1,159 +1,148 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, Edit2, Plus, Clock, ArrowRight, Trash2 } from 'lucide-react'
 import {
-  FaceMask, HairDryer, FlowerLotus, Handshake, SprayBottle, Sparkle,
-} from '@phosphor-icons/react'
-import { ManicureIcon } from '@/components/icons/ManicureIcon'
-import { PedicureIcon } from '@/components/icons/PedicureIcon'
-import { EyebrowIcon } from '@/components/icons/EyebrowIcon'
-import { MaquillajeIcon } from '@/components/icons/MaquillajeIcon'
-import { LashIcon, PolishIcon } from '@/components/icons/CategoryIcons'
+  ChevronDown,
+  Edit2,
+  Trash2,
+  Clock,
+  Scissors,
+  Sparkles,
+  Heart,
+  Star,
+  Smile,
+  Zap,
+  Wind,
+} from 'lucide-react'
 import { formatCurrency } from '@/utils/formatters'
-import Badge from '@/components/ui/Badge'
 
-const CATEGORY_ICONS = [
-  /* More specific patterns first so "Uñas acrílicas" → polish bottle */
-  ['acrílic', PolishIcon],
-  ['acrilic', PolishIcon],
-  ['gel', PolishIcon],
-  ['nailart', PolishIcon],
-  ['nail art', PolishIcon],
-  ['manicura', ManicureIcon],
-  ['manicure', ManicureIcon],
-  ['mano', ManicureIcon],
-  ['uñas', ManicureIcon],
-  ['uña', ManicureIcon],
-  ['nail', ManicureIcon],
-  ['pedicura', PedicureIcon],
-  ['pedicure', PedicureIcon],
-  ['pies', PedicureIcon],
-  ['cejas', EyebrowIcon],
-  ['ceja', EyebrowIcon],
-  ['brow', EyebrowIcon],
-  ['pestañas', LashIcon],
-  ['pestana', LashIcon],
-  ['lash', LashIcon],
-  ['facial', FaceMask],
-  ['face', FaceMask],
-  ['rostro', FaceMask],
-  ['cabello', HairDryer],
-  ['pelo', HairDryer],
-  ['hair', HairDryer],
-  ['spa', FlowerLotus],
-  ['masaje', Handshake],
-  ['massage', Handshake],
-  ['maquillaje', MaquillajeIcon],
-  ['makeup', MaquillajeIcon],
-  ['tratamiento', Sparkle],
-  ['depilación', SprayBottle],
-  ['depilacion', SprayBottle],
-  ['wax', SprayBottle],
-]
-
+// Generic beauty/wellness icon mappings based on category name
 function getCategoryIcon(name) {
-  const key = (name || '').toLowerCase().trim()
-  for (const [pattern, Icon] of CATEGORY_ICONS) {
-    if (key.includes(pattern)) return Icon
-  }
-  return Sparkle
+  const n = (name || '').toLowerCase()
+  if (n.includes('corte') || n.includes('cabello') || n.includes('pelo')) return Scissors
+  if (n.includes('color') || n.includes('tinte') || n.includes('mechas')) return Sparkles
+  if (n.includes('peinado') || n.includes('brushing') || n.includes('secado')) return Wind
+  if (n.includes('facial') || n.includes('rostro') || n.includes('piel')) return Smile
+  if (n.includes('masaje') || n.includes('spa') || n.includes('relaj')) return Heart
+  if (n.includes('ceja') || n.includes('pestaña')) return Star
+  if (n.includes('uñas') || n.includes('manic') || n.includes('pedic')) return Sparkles
+  return Sparkles
 }
 
-function CategoryCard({ category, services, isAdmin, onEditCategory, onAddService, onEditService, onDeleteService, onBook, defaultOpen }) {
-  const [isOpen, setIsOpen] = useState(defaultOpen ?? true)
-  const [hoveredService, setHoveredService] = useState(null)
-
+function CategoryCard({
+  category,
+  services = [],
+  isAdmin,
+  onEditCategory,
+  onAddService,
+  onEditService,
+  onDeleteService,
+  onBook,
+  defaultOpen = true,
+}) {
+  const [isOpen, setIsOpen] = useState(defaultOpen)
   const activeServices = services.filter((s) => s.active !== false)
-  const Icon = getCategoryIcon(category.name)
+  const IconComponent = getCategoryIcon(category.name)
 
-  const minPrice = activeServices.length ? Math.min(...activeServices.map((s) => s.price)) : 0
+  const minPrice = activeServices.length
+    ? Math.min(...activeServices.map((s) => s.price || 0))
+    : 0
+
   const avgDuration = activeServices.length
-    ? Math.round(activeServices.reduce((sum, s) => sum + Number(s.duration), 0) / activeServices.length)
+    ? Math.round(
+        activeServices.reduce((sum, s) => sum + Number(s.duration || 0), 0) /
+          activeServices.length
+      )
     : 0
 
   return (
-    <div className="group rounded-3xl border border-brand-pastel bg-brand-card shadow-lg shadow-brand-text/5 transition-all duration-300 hover:border-brand-primary/50 hover:shadow-xl hover:shadow-brand-text/10">
-      {/* ── Category Header ── */}
+    <div className="rounded-3xl border border-brand-border bg-white shadow-[0_4px_20px_rgba(30,27,46,0.03)] transition-all duration-200 overflow-hidden">
+      {/* ── Category Header Row (Reference Layout) ────────────────────── */}
       <div
         role="button"
         tabIndex={0}
         onClick={() => setIsOpen(!isOpen)}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsOpen(!isOpen) } }}
-        className="group/header flex w-full items-center gap-3 sm:gap-4 px-4 sm:px-6 py-5 sm:py-6 text-left cursor-pointer select-none"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            setIsOpen(!isOpen)
+          }
+        }}
+        className="flex w-full flex-col lg:flex-row lg:items-center justify-between gap-4 p-6 sm:p-7 text-left cursor-pointer select-none hover:bg-brand-bg/40 transition-colors"
       >
-        {/* LEFT: Icon + Name */}
-        <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-          <span
-            role="img"
-            aria-label={`Categoría: ${category.name}`}
-            className="relative flex h-12 w-12 sm:h-14 sm:w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-brand-pastel ring-1 ring-brand-border shadow-md shadow-brand-primary/10 transition-all duration-200 ease-out group-hover/header:-translate-y-0.5 group-hover/header:scale-[1.08] group-hover/header:bg-brand-primary/15 group-hover/header:ring-brand-primary/40 group-hover/header:shadow-lg group-hover/header:shadow-brand-primary/15"
-          >
-            <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-brand-primary transition-colors duration-200 group-hover/header:text-brand-primary" />
-          </span>
+        {/* Left: 80px Pink Circle Icon + Title & Description */}
+        <div className="flex items-center gap-4 sm:gap-5 flex-1 min-w-0">
+          <div className="flex h-16 w-16 sm:h-20 sm:w-20 shrink-0 items-center justify-center rounded-full bg-brand-pastel text-brand-primary shadow-sm shadow-brand-primary/10">
+            <IconComponent className="h-8 w-8 sm:h-10 sm:w-10 stroke-[1.8]" />
+          </div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-brand-text truncate">{category.name}</h3>
-              {/* Mobile badge indicator */}
-              <span className="inline-flex sm:hidden items-center justify-center rounded-full bg-brand-pastel px-2 py-0.5 text-[10px] font-bold text-brand-primary shrink-0">
-                {activeServices.length}
-              </span>
-            </div>
+            <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-brand-text truncate">
+              {category.name}
+            </h3>
             {category.description && (
-              <p className="mt-0.5 text-xs sm:text-sm text-brand-text-muted line-clamp-1">{category.description}</p>
+              <p className="mt-1 text-sm text-brand-text-muted truncate">
+                {category.description}
+              </p>
             )}
           </div>
         </div>
 
-        {/* CENTER: Stats (desktop only) */}
-        <div className="hidden xl:flex items-center gap-6 text-xs text-brand-text-muted">
+        {/* Right: Min Price | Avg Duration | Count Badge | Action Icons | Chevron */}
+        <div className="flex flex-wrap items-center justify-between lg:justify-end gap-3 sm:gap-6 text-sm shrink-0">
+          {/* Min Price */}
           {minPrice > 0 && (
-            <span className="whitespace-nowrap">Desde {formatCurrency(minPrice)}</span>
+            <div className="text-brand-text-muted">
+              <span className="text-xs">Desde </span>
+              <span className="font-semibold text-brand-text">{formatCurrency(minPrice)}</span>
+            </div>
           )}
-          {avgDuration > 0 && (
-            <span className="flex items-center gap-1.5 whitespace-nowrap">
-              <Clock className="h-3.5 w-3.5" />
-              {avgDuration} min prom.
-            </span>
-          )}
-        </div>
 
-        {/* RIGHT: Badge + Actions + Chevron */}
-        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-          {/* Desktop badge */}
-          <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-brand-primary/20 bg-brand-pastel px-3 py-1 text-xs font-medium text-brand-primary">
-            {activeServices.length} servicio{activeServices.length !== 1 ? 's' : ''}
+          {/* Divider */}
+          {minPrice > 0 && avgDuration > 0 && (
+            <div className="hidden sm:block h-4 w-px bg-brand-border" />
+          )}
+
+          {/* Avg Duration with Clock icon */}
+          {avgDuration > 0 && (
+            <div className="flex items-center gap-1.5 text-brand-text-muted">
+              <Clock className="h-4 w-4 stroke-[1.8]" />
+              <span>{avgDuration} min prom.</span>
+            </div>
+          )}
+
+          {/* Pink count badge */}
+          <span className="inline-flex items-center justify-center rounded-full bg-brand-pastel px-3.5 py-1 text-xs font-bold text-brand-primary">
+            {services.length} {services.length === 1 ? 'servicio' : 'servicios'}
           </span>
 
+          {/* Admin Edit / Delete Category actions */}
           {isAdmin && (
-            <>
+            <div className="flex items-center gap-1">
               <button
-                onClick={(e) => { e.stopPropagation(); onEditCategory(category) }}
-                className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl text-brand-text-muted transition-all duration-200 hover:bg-brand-pastel hover:text-brand-primary shrink-0"
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onEditCategory(category)
+                }}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-brand-text-muted hover:bg-brand-pastel hover:text-brand-primary transition-colors"
                 title="Editar categoría"
               >
                 <Edit2 className="h-4 w-4" />
               </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); onAddService(category) }}
-                className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl text-brand-primary transition-all duration-200 hover:bg-brand-pastel shrink-0"
-                title="Agregar servicio"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
-            </>
+            </div>
           )}
 
-          <motion.div
-            animate={{ rotate: isOpen ? 0 : -90 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="ml-1 sm:ml-0 shrink-0"
+          {/* Chevron expand/collapse toggle */}
+          <div
+            className={`transition-transform duration-300 text-brand-text-muted ${
+              isOpen ? 'rotate-0' : '-rotate-90'
+            }`}
           >
-            <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5 text-brand-text-muted" />
-          </motion.div>
+            <ChevronDown className="h-5 w-5 stroke-[2]" />
+          </div>
         </div>
       </div>
 
-      {/* ── Collapsible Content ── */}
+      {/* ── Collapsible Services List ─────────────────────────────────── */}
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
@@ -161,96 +150,88 @@ function CategoryCard({ category, services, isAdmin, onEditCategory, onAddServic
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
           >
-            <div className="mx-6 border-t border-brand-pastel" />
+            <div className="border-t border-brand-border/60" />
 
-            {activeServices.length === 0 ? (
-              <div className="px-6 py-10 text-center text-sm text-brand-text-muted">
-                No hay servicios en esta categoría.
+            {services.length === 0 ? (
+              <div className="p-8 text-center text-sm text-brand-text-muted">
+                No hay servicios en esta categoría todavía.
               </div>
             ) : (
-              <div className="flex flex-col gap-3 px-6 py-5">
-                  {activeServices.map((svc, i) => {
-                  return (
-                      <motion.div
-                        key={svc.id}
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.25, delay: i * 0.04, ease: 'easeOut' }}
-                        onMouseEnter={() => setHoveredService(svc.id)}
-                        onMouseLeave={() => setHoveredService(null)}
-                        onClick={() => !isAdmin && onBook(svc.id)}
-                        className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 rounded-2xl border px-4 sm:px-5 py-4 transition-all duration-200 cursor-default ${
-                          isAdmin ? '' : 'cursor-pointer'
-                        } ${
-                          hoveredService === svc.id
-                            ? 'border-brand-primary/30 bg-brand-pastel/20 shadow-md shadow-brand-primary/10 -translate-y-0.5'
-                            : 'border-brand-pastel bg-transparent'
-                        }`}
-                      >
-                        {/* Name + badges */}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-base font-semibold text-brand-text">{svc.name}</p>
-                          {svc.description && (
-                            <p className="mt-1 text-sm text-brand-text-muted line-clamp-1">{svc.description}</p>
-                          )}
-                          {/* Duration (Mobile) */}
-                          <div className="flex sm:hidden items-center gap-1.5 mt-2 text-xs text-brand-text-muted">
-                            <Clock className="h-3.5 w-3.5" />
-                            <span>{svc.duration} min</span>
-                          </div>
-                        </div>
-
-                        {/* Duration badge (Desktop) */}
-                        <div className="hidden sm:flex items-center gap-1.5 rounded-lg border border-brand-pastel bg-brand-pastel/20 px-2.5 py-1 text-xs text-brand-text-muted shrink-0">
-                          <Clock className="h-3.5 w-3.5" />
-                          <span>{svc.duration} min</span>
-                        </div>
-
-                        {/* Price + Action Row */}
-                        <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto mt-2 sm:mt-0 pt-3 sm:pt-0 border-t border-brand-pastel sm:border-0">
-                          {/* Price */}
-                          <p className="text-sm sm:text-base font-bold text-brand-success whitespace-nowrap drop-shadow-sm">
-                            {formatCurrency(svc.price)}
+              <div className="flex flex-col divide-y divide-brand-border/50 px-6 sm:px-8 py-2">
+                {services.map((svc) => (
+                  <div
+                    key={svc.id}
+                    onClick={() => !isAdmin && onBook?.(svc.id)}
+                    className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-4 transition-colors ${
+                      isAdmin ? '' : 'cursor-pointer hover:bg-brand-bg/40 rounded-xl px-2'
+                    }`}
+                  >
+                    {/* Left: Pink bullet dot + Name & Description */}
+                    <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                      <span className="h-2 w-2 rounded-full bg-brand-primary/60 shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-sm sm:text-base font-semibold text-brand-text truncate">
+                          {svc.name}
+                        </p>
+                        {svc.description && (
+                          <p className="text-xs text-brand-text-muted truncate">
+                            {svc.description}
                           </p>
+                        )}
+                      </div>
+                    </div>
 
-                          {/* Action */}
-                          {isAdmin ? (
-                            <div className="flex items-center gap-2 shrink-0">
-                              <Badge variant={svc.active ? 'success' : 'default'} size="sm" dot>
-                                {svc.active ? 'Activo' : 'Inactivo'}
-                              </Badge>
-                              <button
-                                onClick={(e) => { e.stopPropagation(); onEditService(svc) }}
-                                className="flex h-9 w-9 items-center justify-center rounded-xl text-brand-text-muted transition-all duration-200 hover:bg-brand-pastel hover:text-brand-primary"
-                                title="Editar servicio"
-                              >
-                                <Edit2 className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={(e) => { e.stopPropagation(); onDeleteService && onDeleteService(svc) }}
-                                className="flex h-9 w-9 items-center justify-center rounded-xl text-brand-text-muted transition-all duration-200 hover:bg-red-500/10 hover:text-red-500"
-                                title="Eliminar servicio"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            </div>
-                          ) : (
-                            <motion.button
-                              whileHover={{ scale: 1.03 }}
-                              whileTap={{ scale: 0.96 }}
-                              onClick={() => onBook(svc.id)}
-                              className="relative flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 px-4 sm:px-5 py-2 text-sm font-medium text-white shadow-lg shadow-rose-500/25 transition-all duration-250 hover:shadow-xl hover:shadow-rose-500/35 shrink-0"
-                            >
-                              <span>Reservar</span>
-                              <ArrowRight className="h-4 w-4" />
-                            </motion.button>
-                          )}
+                    {/* Right: Duration | Price (Green) | Status Badge | Admin Actions */}
+                    <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-8 shrink-0 pl-5 sm:pl-0">
+                      {/* Duration with clock */}
+                      <div className="flex items-center gap-1.5 text-xs sm:text-sm text-brand-text-muted">
+                        <Clock className="h-4 w-4 stroke-[1.8]" />
+                        <span>{svc.duration} min</span>
+                      </div>
+
+                      {/* Price in Bold Green */}
+                      <p className="text-sm sm:text-base font-bold text-brand-success tracking-tight">
+                        {formatCurrency(svc.price)}
+                      </p>
+
+                      {/* Active Status Badge */}
+                      <div className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 border border-emerald-100">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        {svc.active !== false ? 'Activo' : 'Inactivo'}
+                      </div>
+
+                      {/* Admin Actions: Edit & Delete */}
+                      {isAdmin && (
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              onEditService(svc)
+                            }}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-brand-text-muted hover:bg-brand-pastel hover:text-brand-primary transition-colors"
+                            title="Editar servicio"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              onDeleteService(svc)
+                            }}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-brand-text-muted hover:bg-red-50 hover:text-red-500 transition-colors"
+                            title="Eliminar servicio"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
-                      </motion.div>
-                  )
-                })}
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </motion.div>

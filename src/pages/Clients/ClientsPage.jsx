@@ -43,7 +43,7 @@ function ClientsPage() {
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-brand-text">Directorio de Clientes</h1>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-brand-text">Clientes</h1>
           <p className="mt-1 text-sm text-brand-text-muted">
             Gestioná tu base de clientes y su historial.
           </p>
@@ -57,7 +57,7 @@ function ClientsPage() {
       </div>
 
       {/* ── Search ──────────────────────────────────────────────────────────── */}
-      <div className="max-w-md">
+      <div className="max-w-[575px]">
         <Input 
           placeholder="Buscar por nombre o teléfono..."
           leftIcon={<Search className="h-4 w-4" />}

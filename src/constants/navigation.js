@@ -1,37 +1,32 @@
 import {
-  LayoutDashboard,
+  Home,
   CalendarDays,
   CalendarPlus,
   Users,
   Settings,
   UserCircle,
   Image as ImageIcon,
-  GalleryHorizontal,
+  LayoutGrid,
 } from 'lucide-react'
-import { InicioIcon } from '@/components/icons/InicioIcon'
-import { ServiciosIcon } from '@/components/icons/ServiciosIcon'
 import { ROUTES } from '@/routes/routes'
 
 /**
  * Main navigation items for the Sidebar.
- * Each item can optionally have `children` for nested menus (future feature).
- *
- * @typedef {Object} NavItem
- * @property {string} id - Unique identifier
- * @property {string} label - Display label
- * @property {string} path - Route path
- * @property {import('lucide-react').LucideIcon} icon - Lucide icon component
- * @property {string} [description] - Short description (for tooltips in collapsed state)
- * @property {string[]} roles - Allowed roles for this item (e.g. ['admin', 'user'])
+ * Guaranteed order matching design:
+ * 1. Inicio
+ * 2. Turnos
+ * 3. Clientes
+ * 4. Servicios
+ * 5. Trabajos
+ * 6. Configuración
+ * 7. Mi Perfil
  */
-
-/** @type {NavItem[]} */
 export const NAV_ITEMS = [
   {
     id: 'dashboard',
     label: 'Inicio',
     path: ROUTES.DASHBOARD,
-    icon: LayoutDashboard,
+    icon: Home,
     description: 'Resumen general',
     roles: ['admin'],
   },
@@ -39,7 +34,7 @@ export const NAV_ITEMS = [
     id: 'user-dashboard',
     label: 'Inicio',
     path: ROUTES.USER_DASHBOARD,
-    icon: InicioIcon,
+    icon: Home,
     description: 'Panel de fidelización',
     roles: ['user'],
   },
@@ -63,7 +58,7 @@ export const NAV_ITEMS = [
     id: 'services',
     label: 'Servicios',
     path: ROUTES.SERVICES,
-    icon: ServiciosIcon,
+    icon: LayoutGrid,
     description: 'Servicios y precios',
     roles: ['admin', 'user'],
   },
@@ -91,14 +86,6 @@ export const NAV_ITEMS = [
     description: 'Gestión de trabajos',
     roles: ['admin'],
   },
-  // {
-  //   id: 'reports',
-  //   label: 'Reportes',
-  //   path: ROUTES.REPORTS,
-  //   icon: ChartBar,
-  //   description: 'Estadísticas e ingresos',
-  //   roles: ['admin'],
-  // },
   {
     id: 'settings',
     label: 'Configuración',

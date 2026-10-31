@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { CalendarDays, Plus, ChevronLeft, ChevronRight, Calendar, Columns2 } from 'lucide-react'
+import { Plus, ChevronLeft, ChevronRight, Calendar, Columns2 } from 'lucide-react'
 import { format, addDays, subDays } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { useAppointmentsByDate, useUpdateAppointmentStatus } from '@/hooks/useAppointments'
+import { useAppointmentsByDate } from '@/hooks/useAppointments'
 import { useServices } from '@/hooks/useServices'
 import { cn } from '@/utils/cn'
 import Button from '@/components/ui/Button'
@@ -19,7 +19,6 @@ export default function AdminAgendaView() {
 
   const { data: appointments, isLoading } = useAppointmentsByDate(selectedDate)
   const { data: services } = useServices()
-  const { mutate: updateStatus } = useUpdateAppointmentStatus()
 
   const servicePriceMap = {}
   if (services) {
@@ -35,24 +34,24 @@ export default function AdminAgendaView() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-6">
+    <div className="flex h-full flex-col gap-6 max-w-7xl mx-auto">
       {/* ── Header & Actions ──────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-4">
           <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-bold text-brand-text">Agenda de Turnos</h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-brand-text">Agenda de Turnos</h1>
             <p className="mt-1 text-sm text-brand-text-muted">
               Gestioná los turnos del día y actualizá sus estados.
             </p>
           </div>
-          <div className="flex shrink-0 rounded-lg border border-slate-700 bg-slate-800/50 p-0.5">
+          <div className="flex shrink-0 rounded-2xl border border-brand-border bg-white p-1 shadow-sm">
             <button
               onClick={() => setViewMode('weekly')}
               className={cn(
-                'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors',
+                'flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all',
                 viewMode === 'weekly'
-                  ? 'bg-rose-500 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-brand-primary text-white shadow-sm'
+                  : 'text-brand-text-muted hover:text-brand-text'
               )}
             >
               <Columns2 className="h-3.5 w-3.5" />
@@ -61,10 +60,10 @@ export default function AdminAgendaView() {
             <button
               onClick={() => setViewMode('daily')}
               className={cn(
-                'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors',
+                'flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all',
                 viewMode === 'daily'
-                  ? 'bg-rose-500 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-brand-primary text-white shadow-sm'
+                  : 'text-brand-text-muted hover:text-brand-text'
               )}
             >
               <Calendar className="h-3.5 w-3.5" />
@@ -78,20 +77,21 @@ export default function AdminAgendaView() {
             setEditingAppointment(null)
             setIsModalOpen(true)
           }}
+          className="rounded-2xl"
         >
           Nuevo Turno
         </Button>
       </div>
 
       {/* ── Date Navigator ────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-2 rounded-xl border border-slate-800 bg-slate-900 p-2">
+      <div className="flex items-center justify-between gap-2 rounded-2xl border border-brand-border bg-white p-3 shadow-sm">
         <Button variant="ghost" size="sm" onClick={handlePrevDay} leftIcon={<ChevronLeft className="h-5 w-5" />} />
         
         <div className="min-w-0 flex-1 flex flex-col items-center px-1">
-          <span className="text-sm sm:text-lg font-bold capitalize text-white truncate max-w-full">
+          <span className="text-sm sm:text-base font-bold capitalize text-brand-text truncate max-w-full">
             {format(selectedDate, "EEEE d 'de' MMMM", { locale: es })}
           </span>
-          <button onClick={handleToday} className="text-xs text-rose-400 hover:underline whitespace-nowrap">
+          <button onClick={handleToday} className="text-xs font-medium text-brand-primary hover:underline whitespace-nowrap">
             Ir a Hoy
           </button>
         </div>
@@ -100,44 +100,42 @@ export default function AdminAgendaView() {
       </div>
 
       {/* ── Appointments List ─────────────────────────────────────────────── */}
-      <div className="flex-1 space-y-4">
-        {isLoading ? (
-          <div className="flex h-40 items-center justify-center">
-            <Spinner size="lg" />
-          </div>
-        ) : appointments?.length > 0 ? (
-          appointments.map((appointment) => (
-            <AppointmentCard 
-              key={appointment.id} 
-              appointment={appointment} 
-              currentPrice={servicePriceMap[appointment.serviceId]}
-              onStatusChange={(newStatus) => updateStatus({ id: appointment.id, status: newStatus })}
-              onEdit={(apt) => {
+      {isLoading ? (
+        <div className="flex h-64 items-center justify-center">
+          <Spinner size="lg" />
+        </div>
+      ) : appointments?.length === 0 ? (
+        <div className="flex h-64 flex-col items-center justify-center rounded-3xl border border-dashed border-brand-border bg-white p-8 text-center shadow-sm">
+          <Calendar className="mb-3 h-10 w-10 text-brand-text-muted/40" />
+          <p className="text-base font-bold text-brand-text">No hay turnos para este día</p>
+          <p className="mt-1 text-xs text-brand-text-muted">Creá un nuevo turno usando el botón superior.</p>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {appointments?.map((apt) => (
+            <AppointmentCard
+              key={apt.id}
+              appointment={apt}
+              price={servicePriceMap[apt.serviceId]}
+              onEdit={() => {
                 setEditingAppointment(apt)
                 setIsModalOpen(true)
               }}
             />
-          ))
-        ) : (
-          <div className="flex h-64 flex-col items-center justify-center rounded-xl border border-dashed border-slate-700 bg-slate-900/50">
-            <CalendarDays className="mb-3 h-10 w-10 text-slate-600" />
-            <p className="text-lg font-medium text-slate-300">Agenda libre</p>
-            <p className="text-sm text-slate-500">No hay turnos programados para este día.</p>
-          </div>
-        )}
-      </div>
-
-      {isModalOpen && (
-        <NewAppointmentModal 
-          isOpen={isModalOpen} 
-          onClose={() => {
-            setIsModalOpen(false)
-            setEditingAppointment(null)
-          }} 
-          initialDate={selectedDate}
-          appointmentToEdit={editingAppointment}
-        />
+          ))}
+        </div>
       )}
+
+      {/* ── Modal ─────────────────────────────────────────────────────────── */}
+      <NewAppointmentModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false)
+          setEditingAppointment(null)
+        }}
+        appointment={editingAppointment}
+        preselectedDate={selectedDate}
+      />
     </div>
   )
 }

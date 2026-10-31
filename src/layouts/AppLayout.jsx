@@ -2,35 +2,18 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
-import { useAuth } from '@/hooks/useAuth'
-import { USER_ROLES } from '@/constants/app'
 import { cn } from '@/utils/cn'
 
 /**
  * AppLayout — the main authenticated layout shell.
- *
- * Structure:
- * ┌──────────────────────────────────────────┐
- * │  Sidebar (fixed, left)  │  Header (top)  │
- * │                         ├────────────────│
- * │                         │  <Outlet />    │
- * │                         │  (page)        │
- * └──────────────────────────────────────────┘
- *
- * Sidebar states:
- * - Desktop: collapsible (isCollapsed state)
- * - Mobile: slide-in drawer overlay (isMobileOpen state)
- *
- * The layout shifts the main content area based on sidebar width.
+ * Matches desktop reference width (~280px sidebar, 80px header).
  */
 function AppLayout() {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
-  const { role } = useAuth()
-  const isAdmin = role === USER_ROLES.ADMIN
 
   return (
-    <div className="flex h-[100dvh] overflow-hidden bg-brand-bg">
+    <div className="flex h-[100dvh] overflow-hidden bg-brand-bg font-sans">
       {/* ── Sidebar ─────────────────────────────────────────────────────── */}
       <Sidebar
         isCollapsed={isCollapsed}
@@ -44,20 +27,20 @@ function AppLayout() {
         className={cn(
           'flex flex-1 flex-col overflow-hidden',
           'transition-all duration-300 ease-in-out',
-          // On desktop, offset left by sidebar width
-          isCollapsed ? 'lg:ml-16' : 'lg:ml-56'
+          // Desktop sidebar width offset
+          isCollapsed ? 'lg:ml-20' : 'lg:ml-[280px]'
         )}
       >
-        {/* Header */}
+        {/* Header (80px height per reference) */}
         <Header onMenuClick={() => setIsMobileOpen(true)} />
 
-        {/* Page content */}
+        {/* Page content with generous padding (approx 28px) */}
         <main
           id="main-content"
           role="main"
           className="flex-1 overflow-y-auto"
         >
-          <div className="min-h-full p-4 lg:p-6">
+          <div className="min-h-full p-4 sm:p-6 lg:p-7 2xl:p-8">
             <Outlet />
           </div>
         </main>

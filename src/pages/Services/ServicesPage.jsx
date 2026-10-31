@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Scissors, Plus, FolderKanban, Search, X, Sparkles } from 'lucide-react'
+import { Scissors, Plus, Search, X, FolderPlus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { useAuth } from '@/hooks/useAuth'
@@ -53,10 +53,9 @@ function ServicesPage() {
 
       const serviceNameMatch = svc.name?.toLowerCase().includes(query)
       const serviceDescMatch = svc.description?.toLowerCase().includes(query)
-      
       const cat = categoryMap[svc.categoryId]
       const categoryMatch = cat?.name?.toLowerCase().includes(query)
-      
+
       return serviceNameMatch || serviceDescMatch || categoryMatch
     })
 
@@ -73,17 +72,17 @@ function ServicesPage() {
       }
     })
 
-    const result = (categories || []).map((cat) => ({
-      category: cat,
-      services: catMap[cat.id] || [],
-    })).filter((g) => g.services.length > 0 || (isAdmin && (!query || g.category.name.toLowerCase().includes(query))))
+    const result = (categories || [])
+      .map((cat) => ({
+        category: cat,
+        services: catMap[cat.id] || [],
+      }))
+      .filter((g) => g.services.length > 0 || (isAdmin && (!query || g.category.name.toLowerCase().includes(query))))
 
     return { categories: result, uncategorized }
   }, [rawServices, categories, isAdmin, searchQuery])
 
   const handleBookService = (serviceId) => {
-    // Both registered users and guests book through the public booking page
-    // (guests can complete the reservation without creating an account).
     navigate(ROUTES.BOOKING, { state: { selectedServiceId: serviceId } })
   }
 
@@ -127,7 +126,7 @@ function ServicesPage() {
       await deleteService(serviceToDelete.id)
       toast.success('Servicio eliminado')
       setServiceToDelete(null)
-    } catch (error) {
+    } catch {
       toast.error('Ocurrió un error al eliminar')
     }
   }
@@ -136,49 +135,57 @@ function ServicesPage() {
   const hasFilteredServices = grouped.categories.length > 0 || grouped.uncategorized.length > 0
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6 max-w-7xl mx-auto">
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-pastel text-brand-primary">
-            <Sparkles className="h-6 w-6" />
+        <div className="flex items-center gap-4 sm:gap-5">
+          {/* Main 88x88px icon box per reference */}
+          <div className="flex h-16 w-16 sm:h-[88px] sm:w-[88px] shrink-0 items-center justify-center rounded-3xl bg-brand-pastel text-brand-primary shadow-sm shadow-brand-primary/10">
+            <Scissors className="h-8 w-8 sm:h-11 sm:w-11 stroke-[1.8]" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-brand-text">Catálogo de Servicios</h1>
-            <p className="text-sm text-brand-text-muted">Explorá nuestros servicios y reservá tu turno.</p>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-brand-text">
+              Catálogo de Servicios
+            </h1>
+            <p className="mt-1 text-sm sm:text-base text-brand-text-muted">
+              Explorá nuestros servicios y reservá tu turno.
+            </p>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {isAdmin && (
-            <>
-              <Button
-                variant="secondary"
-                leftIcon={<FolderKanban className="h-4 w-4" />}
-                onClick={() => setCategoryModalOpen(true)}
-              >
-                Nueva Categoría
-              </Button>
-              <Button
-                leftIcon={<Plus className="h-4 w-4" />}
-                onClick={handleAddServiceGeneric}
-              >
-                Nuevo Servicio
-              </Button>
-            </>
-          )}
-        </div>
+        {isAdmin && (
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              variant="outline"
+              size="md"
+              leftIcon={<FolderPlus className="h-4 w-4" />}
+              onClick={() => setCategoryModalOpen(true)}
+              className="border-brand-border bg-white text-brand-text hover:bg-brand-pastel/30 rounded-2xl"
+            >
+              Nueva Categoría
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              leftIcon={<Plus className="h-4 w-4" />}
+              onClick={handleAddServiceGeneric}
+              className="rounded-2xl"
+            >
+              Nuevo Servicio
+            </Button>
+          </div>
+        )}
       </div>
 
-      {/* ── Search Bar ──────────────────────────────────────────────────────── */}
+      {/* ── Search Bar (approx 575px width on desktop) ──────────────────────── */}
       {hasAnyServices && (
-        <div className="relative w-full max-w-md">
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <Search className="h-5 w-5 text-brand-text-muted" />
+        <div className="relative w-full max-w-[575px]">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+            <Search className="h-5 w-5 text-brand-text-muted/70 stroke-[2]" />
           </div>
           <input
             type="text"
-            className="w-full rounded-xl border border-brand-pastel bg-brand-bg py-2 pl-10 pr-10 text-sm text-brand-text placeholder-brand-text-muted transition-colors focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary"
+            className="w-full rounded-full border border-brand-border bg-white py-3 pl-12 pr-11 text-sm text-brand-text placeholder-brand-text-muted/70 shadow-sm transition-all focus:border-brand-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
             placeholder="Buscar por nombre, descripción o categoría..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -186,7 +193,7 @@ function ServicesPage() {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-brand-text-muted transition-colors hover:text-brand-text"
+              className="absolute inset-y-0 right-0 flex items-center pr-4 text-brand-text-muted hover:text-brand-text transition-colors"
               aria-label="Limpiar búsqueda"
             >
               <X className="h-4 w-4" />
@@ -195,14 +202,14 @@ function ServicesPage() {
         </div>
       )}
 
-      {/* ── Catalog ─────────────────────────────────────────────────────────── */}
+      {/* ── Categories List ─────────────────────────────────────────────────── */}
       {isLoading ? (
-        <div className="flex h-40 items-center justify-center">
+        <div className="flex h-48 items-center justify-center">
           <Spinner size="lg" />
         </div>
       ) : hasAnyServices ? (
         hasFilteredServices ? (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-6">
             {/* Grouped by category */}
             {grouped.categories.map(({ category, services }) => (
               <CategoryCard
@@ -222,7 +229,7 @@ function ServicesPage() {
             {/* Uncategorized section */}
             {grouped.uncategorized.length > 0 && (
               <CategoryCard
-                category={{ name: 'Sin categoría', description: '' }}
+                category={{ name: 'Sin categoría', description: 'Servicios generales' }}
                 services={grouped.uncategorized}
                 isAdmin={isAdmin}
                 onEditCategory={() => {}}
@@ -235,20 +242,21 @@ function ServicesPage() {
             )}
           </div>
         ) : (
-          <div className="flex h-64 flex-col items-center justify-center rounded-xl border border-dashed border-brand-pastel bg-brand-pastel/10">
-            <Search className="mb-3 h-10 w-10 text-brand-text-muted opacity-50" />
-            <p className="text-lg font-medium text-brand-text-muted">No se encontraron servicios</p>
-            <p className="text-sm text-brand-text-muted mt-1">Intentá con otros términos de búsqueda.</p>
+          <div className="flex h-64 flex-col items-center justify-center rounded-3xl border border-dashed border-brand-border bg-white p-8 text-center shadow-sm">
+            <Search className="mb-3 h-10 w-10 text-brand-text-muted/40" />
+            <p className="text-lg font-bold text-brand-text">No se encontraron servicios</p>
+            <p className="mt-1 text-sm text-brand-text-muted">Intentá con otros términos de búsqueda.</p>
           </div>
         )
       ) : (
-        <div className="flex h-64 flex-col items-center justify-center rounded-xl border border-dashed border-brand-pastel bg-brand-pastel/10">
-          <Scissors className="mb-3 h-10 w-10 text-brand-text-muted" />
-          <p className="text-lg font-medium text-brand-text-muted">No hay servicios disponibles</p>
+        <div className="flex h-64 flex-col items-center justify-center rounded-3xl border border-dashed border-brand-border bg-white p-8 text-center shadow-sm">
+          <Scissors className="mb-3 h-10 w-10 text-brand-text-muted/40" />
+          <p className="text-lg font-bold text-brand-text">No hay servicios disponibles</p>
+          <p className="mt-1 text-sm text-brand-text-muted">Creá tu primera categoría y servicio desde los botones superiores.</p>
         </div>
       )}
 
-      {/* ── Service Modal ─────────────────────────────────────────────────── */}
+      {/* ── Modals ─────────────────────────────────────────────────────────── */}
       {(serviceModalOpen || selectedService) && (
         <ServiceModal
           isOpen={serviceModalOpen || !!selectedService}
@@ -258,7 +266,6 @@ function ServicesPage() {
         />
       )}
 
-      {/* ── Category Modal (Admin Only) ───────────────────────────────────── */}
       {(categoryModalOpen || selectedCategory) && (
         <CategoryModal
           isOpen={categoryModalOpen || !!selectedCategory}
@@ -267,7 +274,6 @@ function ServicesPage() {
         />
       )}
 
-      {/* ── Confirm Dialog ─────────────────────────────────────────────────── */}
       <ConfirmDialog
         isOpen={!!serviceToDelete}
         onClose={() => setServiceToDelete(null)}

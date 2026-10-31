@@ -305,24 +305,24 @@ export default function WeeklyAgendaView() {
       </div>
 
       {/* ── Week Navigator ──────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-2 rounded-xl border border-brand-pastel bg-brand-primary-hover p-2">
-        <Button variant="ghost" size="sm" onClick={handlePrevWeek} className="text-white hover:text-white/80">
+      <div className="flex items-center justify-between gap-2 rounded-xl border border-brand-border bg-white p-3 shadow-sm">
+        <Button variant="ghost" size="sm" onClick={handlePrevWeek} className="text-brand-text hover:text-brand-primary">
           <ChevronLeft className="h-5 w-5" />
         </Button>
 
         <div className="min-w-0 flex-1 flex flex-col items-center px-1">
-          <span className="text-sm sm:text-lg font-bold text-white truncate max-w-full">
+          <span className="text-sm sm:text-base font-bold text-brand-text truncate max-w-full">
             {weekLabel}
           </span>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-white/70">{yearLabel}</span>
-            <button onClick={handleThisWeek} className="text-xs text-white hover:underline whitespace-nowrap">
+            <span className="text-xs text-brand-text-muted">{yearLabel}</span>
+            <button onClick={handleThisWeek} className="text-xs text-brand-primary hover:underline whitespace-nowrap">
               Esta semana
             </button>
           </div>
         </div>
 
-        <Button variant="ghost" size="sm" onClick={handleNextWeek} className="text-white hover:text-white/80">
+        <Button variant="ghost" size="sm" onClick={handleNextWeek} className="text-brand-text hover:text-brand-primary">
           <ChevronRight className="h-5 w-5" />
         </Button>
       </div>

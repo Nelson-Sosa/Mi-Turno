@@ -1,4 +1,4 @@
-import { Menu, Bell } from 'lucide-react'
+import { Menu, Bell, ChevronDown } from 'lucide-react'
 import { useState, useRef, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useUnreadCount } from '@/hooks/useNotifications'
@@ -19,9 +19,9 @@ function Header({ onMenuClick }) {
   const bellRef = useRef(null)
   const avatarRef = useRef(null)
 
-  const displayName = userProfile?.displayName || user?.displayName || 'Usuario'
+  const displayName = userProfile?.displayName || user?.displayName || 'Nelson Sosa'
   const email = user?.email || ''
-  const initials = getInitials(displayName)
+  const initials = getInitials(displayName) || 'NS'
   const isAdmin = userProfile?.role === 'admin'
 
   const handleLogout = async () => {
@@ -45,7 +45,7 @@ function Header({ onMenuClick }) {
 
   return (
     <header
-      className="flex h-16 items-center justify-between border-b border-brand-pastel bg-brand-bg/90 px-4 backdrop-blur-xl lg:px-6"
+      className="flex h-20 items-center justify-between border-b border-brand-border/70 bg-white/80 px-6 backdrop-blur-md lg:px-8"
       style={{ zIndex: Z_INDEX.HEADER }}
     >
       {/* ── Left: Hamburger (mobile) + Brand ──────────────────────────── */}
@@ -55,7 +55,7 @@ function Header({ onMenuClick }) {
           aria-label="Abrir menú"
           className={cn(
             'flex h-10 w-10 items-center justify-center rounded-xl',
-            'text-brand-text-muted transition-colors hover:bg-brand-pastel/50 hover:text-brand-primary',
+            'text-brand-text-muted transition-colors hover:bg-brand-pastel hover:text-brand-primary',
             'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50',
             'lg:hidden'
           )}
@@ -63,7 +63,7 @@ function Header({ onMenuClick }) {
           <Menu className="h-5 w-5" aria-hidden="true" />
         </button>
 
-        <span className="text-sm font-medium text-brand-text lg:hidden">
+        <span className="text-base font-bold text-brand-text lg:hidden">
           {APP_NAME}
         </span>
       </div>
@@ -71,8 +71,8 @@ function Header({ onMenuClick }) {
       {/* ── Spacer ────────────────────────────────────────────────────── */}
       <div className="flex-1" />
 
-      {/* ── Right: Actions ────────────────────────────────────────────── */}
-      <div className="flex items-center gap-1.5 rounded-2xl border border-transparent bg-transparent p-1 transition-colors md:border-brand-pastel/50 md:bg-brand-card">
+      {/* ── Right: Notifications Bell + User Profile ──────────────────── */}
+      <div className="flex items-center gap-3">
         {/* Notification Bell */}
         <div>
           <button
@@ -80,16 +80,16 @@ function Header({ onMenuClick }) {
             onClick={toggleNotifications}
             aria-label="Notificaciones"
             className={cn(
-              'relative flex h-10 w-10 items-center justify-center rounded-xl',
-              'text-brand-text transition-all duration-150',
-              'hover:bg-brand-pastel hover:text-brand-primary',
+              'relative flex h-11 w-11 items-center justify-center rounded-full border border-brand-border bg-white',
+              'text-brand-text transition-all duration-150 shadow-sm',
+              'hover:bg-brand-pastel/50 hover:text-brand-primary hover:border-brand-primary/30',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50',
-              isNotificationsOpen && 'bg-brand-pastel text-brand-primary'
+              isNotificationsOpen && 'bg-brand-pastel text-brand-primary border-brand-primary/40'
             )}
           >
-            <Bell className="h-5 w-5" aria-hidden="true" />
+            <Bell className="h-5 w-5 stroke-[1.8]" aria-hidden="true" />
             {unreadCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-primary px-1 text-[10px] font-bold leading-none text-white animate-badge-pulse">
+              <span className="absolute 1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-primary px-1 text-[10px] font-bold leading-none text-white animate-badge-pulse">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -108,10 +108,7 @@ function Header({ onMenuClick }) {
           </DropdownPortal>
         </div>
 
-        {/* Divider */}
-        <div className="mx-1 h-6 w-px bg-brand-pastel" />
-
-        {/* User Menu */}
+        {/* User Menu Trigger */}
         <div>
           <button
             ref={avatarRef}
@@ -121,22 +118,27 @@ function Header({ onMenuClick }) {
             aria-expanded={isUserMenuOpen}
             aria-controls="user-menu"
             className={cn(
-              'flex items-center gap-2.5 rounded-xl px-2 py-2 min-h-[44px]',
-              'text-sm transition-all duration-150',
-              'hover:bg-brand-pastel/50',
+              'flex items-center gap-3 rounded-full py-1.5 pl-1.5 pr-3 transition-all duration-150',
+              'hover:bg-brand-pastel/30',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50',
-              isUserMenuOpen && 'bg-brand-pastel/50'
+              isUserMenuOpen && 'bg-brand-pastel/40'
             )}
           >
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-primary text-[11px] font-bold text-white shadow-sm">
+            {/* Avatar Circle with initials */}
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-primary text-xs font-bold text-white shadow-sm shadow-brand-primary/25">
               {initials}
             </div>
-            <div className="hidden text-left md:block">
-              <p className="text-sm font-medium leading-tight text-brand-text">{displayName}</p>
-              <p className="text-[11px] leading-tight text-brand-text-muted">
-                {isAdmin ? 'Administrador' : 'Usuario'}
+
+            {/* Name + Role */}
+            <div className="hidden text-left sm:block">
+              <p className="text-sm font-bold leading-tight text-brand-text">{displayName}</p>
+              <p className="text-xs leading-tight text-brand-text-muted mt-0.5">
+                {isAdmin ? 'Administrador' : 'Cliente'}
               </p>
             </div>
+
+            {/* Chevron icon */}
+            <ChevronDown className="h-4 w-4 text-brand-text-muted stroke-[2] ml-0.5" />
           </button>
 
           <DropdownPortal
