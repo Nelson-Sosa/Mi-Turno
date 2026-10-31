@@ -5,58 +5,25 @@ import {
   Edit2,
   Trash2,
   Clock,
-  Scissors,
-  Sparkles,
-  Heart,
-  Star,
-  Smile,
-  Wind,
   CalendarPlus,
 } from 'lucide-react'
 import { formatCurrency } from '@/utils/formatters'
-
-// Generic beauty/wellness icon mappings based on category name
-function getCategoryIcon(name) {
-  const n = (name || '').toLowerCase()
-  if (n.includes('corte') || n.includes('cabello') || n.includes('pelo')) return Scissors
-  if (n.includes('color') || n.includes('tinte') || n.includes('mechas')) return Sparkles
-  if (n.includes('peinado') || n.includes('brushing') || n.includes('secado')) return Wind
-  if (n.includes('facial') || n.includes('rostro') || n.includes('piel')) return Smile
-  if (n.includes('masaje') || n.includes('spa') || n.includes('relaj')) return Heart
-  if (n.includes('ceja') || n.includes('pestaña')) return Star
-  if (n.includes('uñas') || n.includes('manic') || n.includes('pedic')) return Sparkles
-  return Sparkles
-}
 
 function CategoryCard({
   category,
   services = [],
   isAdmin,
   onEditCategory,
-  onAddService,
   onEditService,
   onDeleteService,
   onBook,
   defaultOpen = true,
 }) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
-  const activeServices = services.filter((s) => s.active !== false)
-  const IconComponent = getCategoryIcon(category.name)
-
-  const minPrice = activeServices.length
-    ? Math.min(...activeServices.map((s) => s.price || 0))
-    : 0
-
-  const avgDuration = activeServices.length
-    ? Math.round(
-        activeServices.reduce((sum, s) => sum + Number(s.duration || 0), 0) /
-          activeServices.length
-      )
-    : 0
 
   return (
     <div className="rounded-3xl border border-brand-border bg-white shadow-[0_4px_20px_rgba(30,27,46,0.03)] transition-all duration-200 overflow-hidden">
-      {/* ── Category Header Row (Reference Layout) ────────────────────── */}
+      {/* ── Category Header Row (Diseño Limpio y Minimalista) ────────── */}
       <div
         role="button"
         tabIndex={0}
@@ -67,54 +34,28 @@ function CategoryCard({
             setIsOpen(!isOpen)
           }
         }}
-        className="flex w-full flex-col lg:flex-row lg:items-center justify-between gap-4 p-6 sm:p-7 text-left cursor-pointer select-none hover:bg-brand-bg/40 transition-colors"
+        className="flex w-full items-center justify-between gap-4 px-6 sm:px-8 py-5 sm:py-6 text-left cursor-pointer select-none hover:bg-brand-bg/40 transition-colors"
       >
-        {/* Left: 80px Pink Circle Icon + Title & Description */}
-        <div className="flex items-center gap-4 sm:gap-5 flex-1 min-w-0">
-          <div className="flex h-16 w-16 sm:h-20 sm:w-20 shrink-0 items-center justify-center rounded-full bg-brand-pastel text-brand-primary shadow-sm shadow-brand-primary/10">
-            <IconComponent className="h-8 w-8 sm:h-10 sm:w-10 stroke-[1.8]" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-brand-text truncate">
-              {category.name}
-            </h3>
-            {category.description && (
-              <p className="mt-1 text-sm text-brand-text-muted truncate">
-                {category.description}
-              </p>
-            )}
-          </div>
+        {/* Left: Título de Categoría & Descripción (sin icono para máxima limpieza) */}
+        <div className="min-w-0 flex-1">
+          <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-brand-text truncate">
+            {category.name}
+          </h3>
+          {category.description && (
+            <p className="mt-1 text-sm text-brand-text-muted truncate">
+              {category.description}
+            </p>
+          )}
         </div>
 
-        {/* Right: Min Price | Avg Duration | Count Badge | Action Icons | Chevron */}
-        <div className="flex flex-wrap items-center justify-between lg:justify-end gap-3 sm:gap-6 text-sm shrink-0">
-          {/* Min Price */}
-          {minPrice > 0 && (
-            <div className="text-brand-text-muted">
-              <span className="text-xs">Desde </span>
-              <span className="font-semibold text-brand-text">{formatCurrency(minPrice)}</span>
-            </div>
-          )}
-
-          {/* Divider */}
-          {minPrice > 0 && avgDuration > 0 && (
-            <div className="hidden sm:block h-4 w-px bg-brand-border" />
-          )}
-
-          {/* Avg Duration with Clock icon */}
-          {avgDuration > 0 && (
-            <div className="flex items-center gap-1.5 text-brand-text-muted">
-              <Clock className="h-4 w-4 stroke-[1.8]" />
-              <span>{avgDuration} min prom.</span>
-            </div>
-          )}
-
-          {/* Pink count badge */}
+        {/* Right: Etiqueta de cantidad | Acciones Admin | Flecha colapsable */}
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+          {/* Badge con la cantidad de servicios */}
           <span className="inline-flex items-center justify-center rounded-full bg-brand-pastel px-3.5 py-1 text-xs font-bold text-brand-primary">
             {services.length} {services.length === 1 ? 'servicio' : 'servicios'}
           </span>
 
-          {/* Admin Edit / Delete Category actions */}
+          {/* Admin Edit Category */}
           {isAdmin && (
             <div className="flex items-center gap-1">
               <button
@@ -180,7 +121,7 @@ function CategoryCard({
                       </div>
                     </div>
 
-                    {/* Right: Duration | Price (Green) | Status Badge | Admin Actions OR Client Reservar Button */}
+                    {/* Right: Duration | Price (Green) | Admin Actions OR Client Reservar Button */}
                     <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-6 shrink-0 pl-5 sm:pl-0">
                       {/* Duration with clock */}
                       <div className="flex items-center gap-1.5 text-xs sm:text-sm text-brand-text-muted">
