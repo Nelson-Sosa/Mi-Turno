@@ -165,6 +165,19 @@ function BookingPage() {
     setStep(STEPS.IDENTITY)
   }
 
+  // ─── Auto-advance when time is selected ───────────────────────────────────
+  useEffect(() => {
+    // Only auto-advance if we're on the SLOT step and have both date and time
+    if (step === STEPS.SLOT && slotDate && slotTime && selectedService) {
+      // Small delay to give visual feedback that selection was made
+      const timer = setTimeout(() => {
+        continueFromSlot()
+      }, 300)
+      return () => clearTimeout(timer)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slotTime, slotDate, step])
+
   // ─── Identity resolution ──────────────────────────────────────────────────
   const handleGuestSubmit = (values) => {
     setGuestData(values)
@@ -399,9 +412,12 @@ function BookingPage() {
             }}
           />
 
-          <div className="flex justify-end">
-            <Button onClick={continueFromSlot}>Continuar</Button>
-          </div>
+          {slotDate && slotTime && (
+            <div className="flex items-center justify-center gap-2 rounded-xl border border-brand-primary/20 bg-brand-primary/5 px-4 py-3">
+              <Spinner className="h-4 w-4 text-brand-primary" />
+              <p className="text-sm text-brand-text">Avanzando al siguiente paso...</p>
+            </div>
+          )}
         </div>
       )}
 
